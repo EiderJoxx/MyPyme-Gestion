@@ -51,71 +51,10 @@ body {
   padding: 24px;
 }
 
-.header {
+.admin {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 32px;
-  background: #0a0c10;
-  border-bottom: 1px solid #1f3b5c;
+  min-height: 100vh;
 }
-
-.header-logo {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: #d9dde2;
-  color: #0a0c10;
-  font-weight: 700;
-  font-size: 1.2rem;
-  text-decoration: none;
-}
-
-.header-nav {
-  display: flex;
-  gap: 20px;
-}
-.header-enlace {
-  color: #f1f3f5;
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-.header-enlace:hover {
-  color: #fff;
-}
-.header-enlace.activo {
-  color: #8b9097;
-}
-
-.header-botones {
-  display: flex;
-  gap: 8px;
-}
-.btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  cursor: pointer;
-}
-.btn-contorno {
-  background: transparent;
-  color: #2f8cff;
-  border: 1px solid #2f8cff;
-}
-.btn-primario {
-  background: #0d83fd;
-  color: #fff;
-  border: 1px solid #0d83fd;
-}
-
-@media (max-width: 800px) {
-  .header {
-    padding: 12px 16px;
-  }
-  .header-nav {
-    display: none;
-  }
+.sidebar {
+  flex-shrink: 0;
 }

@@ -1,39 +1,47 @@
 import { Link, NavLink } from "react-router-dom";
 
-const Enlaces = [
-  { ruta: "/", texto: "Inicio" },
-  { ruta: "/habitaciones", texto: "Habitaciones" },
-  { ruta: "/restaurante", texto: "Restaurante" },
-  { ruta: "/reservaciones", texto: "Reservaciones" },
-  { ruta: "/reportes", texto: "Reportes" },
-];
-
 export default function Header() {
   return (
-    <header className="header">
-      <Link to="/" className="header-logo">
-        M
-      </Link>
+    <nav
+      className="navbar navbar-expand-lg bg-dark border-bottom border-secondary"
+      data-bs-theme="dark"
+    >
+      <div className="container">
+        <Link to="/" className="navbar-brand fw-bold">
+          MyPyme
+        </Link>
 
-      <nav className="header-nav">
-        {Enlaces.map((e) => (
-          <NavLink
-            key={e.ruta}
-            to={e.ruta}
-            end={e.ruta === "/"}
-            className={({ isActive }) =>
-              isActive ? "header-enlace activo" : "header-enlace"
-            }
-          >
-            {e.texto}
-          </NavLink>
-        ))}
-      </nav>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuPrincipal"
+          aria-controls="menuPrincipal"
+          aria-expanded="false"
+          aria-label="Abrir menú"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-      <div className="header-botones">
-        <button className="btn btn-contorno">Iniciar Sesión</button>
-        <button className="btn btn-primario">Registrarse</button>
+        <div className="collapse navbar-collapse" id="menuPrincipal">
+          <ul className="navbar-nav mx-auto mb-2 mb-lg-0">
+            <li className="nav-item">
+              <NavLink to="/" end className="nav-link">
+                Inicio
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <a href="/#servicios" className="nav-link">
+                Servicios
+              </a>
+            </li>
+          </ul>
+
+          <Link to="/login" className="btn btn-primary">
+            Iniciar sesión
+          </Link>
+        </div>
       </div>
-    </header>
+    </nav>
   );
 }

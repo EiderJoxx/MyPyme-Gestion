@@ -1,13 +1,23 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Layout from "./components/Layout.tsx";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import PublicLayout from "./Layouts/PublicLayout";
+import AdminLayout from "./Layouts/AdminLayout";
+import Landing from "./pages/public/Landing";
+import Login from "./pages/public/Login";
+import Inicio from "./pages/admin/Inicio";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<h1>Pagina Inicio</h1>} />
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
         </Route>
+
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Inicio />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

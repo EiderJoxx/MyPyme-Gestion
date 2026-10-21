@@ -1,14 +1,14 @@
 import { NavLink } from "react-router-dom";
 
 const enlaces = [
-  { ruta: "/", texto: "Inicio" },
-  { ruta: "/bar", texto: "Bar" },
-  { ruta: "/habitaciones", texto: "Habitaciones" },
-  { ruta: "/restaurante", texto: "Restaurante" },
-  { ruta: "/reservaciones", texto: "Reservaciones" },
-  { ruta: "/gastos", texto: "Gastos" },
-  { ruta: "/usuarios", texto: "Usuarios" },
-  { ruta: "/reportes", texto: "Reportes" },
+  { ruta: "/admin", texto: "Inicio" },
+  { ruta: "/admin/bar", texto: "Bar" },
+  { ruta: "/admin/habitaciones", texto: "Habitaciones" },
+  { ruta: "/admin/restaurante", texto: "Restaurante" },
+  { ruta: "/admin/reservaciones", texto: "Reservaciones" },
+  { ruta: "/admin/gastos", texto: "Gastos" },
+  { ruta: "/admin/usuarios", texto: "Usuarios" },
+  { ruta: "/admin/reportes", texto: "Reportes" },
 ];
 
 export default function Sidebar() {
@@ -20,7 +20,7 @@ export default function Sidebar() {
           <NavLink
             key={e.ruta}
             to={e.ruta}
-            end={e.ruta === "/"}
+            end={e.ruta === "/admin"}
             className={({ isActive }) =>
               isActive ? "enlace activo" : "enlace"
             }
