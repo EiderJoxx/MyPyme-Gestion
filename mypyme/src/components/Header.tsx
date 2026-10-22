@@ -31,8 +31,18 @@ export default function Header() {
               </NavLink>
             </li>
             <li className="nav-item">
+              <a href="/#hospedaje" className="nav-link">
+                Hospedaje
+              </a>
+            </li>
+            <li className="nav-item">
               <a href="/#servicios" className="nav-link">
                 Servicios
+              </a>
+            </li>
+            <li className="nav-item">
+              <a href="/#contacto" className="nav-link">
+                Contacto
               </a>
             </li>
           </ul>

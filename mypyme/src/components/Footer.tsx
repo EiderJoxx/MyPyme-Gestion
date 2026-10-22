@@ -11,8 +11,18 @@ export default function Footer() {
             </Link>
           </li>
           <li className="nav-item">
+            <a href="/#hospedaje" className="nav-link px-2 text-body-secondary">
+              Hospedaje
+            </a>
+          </li>
+          <li className="nav-item">
             <a href="/#servicios" className="nav-link px-2 text-body-secondary">
               Servicios
+            </a>
+          </li>
+          <li className="nav-item">
+            <a href="/#contacto" className="nav-link px-2 text-body-secondary">
+              Contacto
             </a>
           </li>
           <li className="nav-item">
