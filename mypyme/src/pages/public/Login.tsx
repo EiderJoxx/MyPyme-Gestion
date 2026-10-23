@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import Carrusel from "../../components/Carrusel";
 import "../../css/Login.css";
+import RegistrerModal from "./RegistrerModal";
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,26 +73,22 @@ export const Login: React.FC = () => {
 
             <div className="divider"></div>
 
-            <button type="button" className="btn-secondary">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setIsRegisterOpen(true)}
+            >
               Crear cuenta
             </button>
           </form>
         </div>
       </div>
+      <RegistrerModal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+      />
     </div>
   );
 };
 
-/* import { Link } from "react-router-dom";
-
-export default function Login() {
-  return (
-    <div>
-      <h1>Iniciar sesión</h1>
-      <p>Aqui iría el formulario de inicio de sesión</p>
-      <Link to="/admin" className="btn btn-primario">
-        Entrar al sistemas
-      </Link>
-    </div>
-  );
-} */
+export default Login;
