@@ -1,5 +1,5 @@
 import React from "react";
-import "./TarjetaResumen.css";
+import "../css/TarjetaResumen.css";
 export interface TarjetaResumenProps {
   titulo: string;
   valor: string | number;

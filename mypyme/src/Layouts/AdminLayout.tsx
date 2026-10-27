@@ -1,15 +1,13 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 
-export const AdminLayout: React.FC = () => {
+export default function AdminLayout() {
   return (
-    <div className="admin-layout">
+    <div className="d-flex min-vh-100">
       <Sidebar />
-      <main className="contenido">
+      <main className="flex-grow-1 p-4" style={{ minWidth: 0 }}>
         <Outlet />
       </main>
     </div>
   );
-};
-
-export default AdminLayout;
+}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../css/RegistrerModal.css";
+import "../../css/RegisterModal.css";
 
 interface RegistrerModalProps {
   isOpen: boolean;

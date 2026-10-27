@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Carrusel from "../../components/Carrusel";
 import "../../css/Login.css";
-import RegistrerModal from "./RegistrerModal";
+import RegistrerModal from "../../components/auth/RegisterModal";
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState("");

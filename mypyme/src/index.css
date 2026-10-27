@@ -62,3 +62,16 @@ body {
 .sidebar {
   flex-shrink: 0;
 }
+
+.admin {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  flex-shrink: 0;
+}
+.contenido {
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+}

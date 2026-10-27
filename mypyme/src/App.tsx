@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import PublicLayout from "./Layouts/PublicLayout";
-import { AdminLayout } from "./Layouts/AdminLayout";
+import PublicLayout from "./layouts/PublicLayout";
+import AdminLayout from "./layouts/AdminLayout";
 import Landing from "./pages/public/Landing";
 import Login from "./pages/public/Login";
 import Inicio from "./pages/admin/Inicio";
@@ -24,12 +24,12 @@ export default function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Inicio />} />
           <Route path="bar" element={<Bar />} />
-          <Route path="gastos" element={<Gastos />} />
           <Route path="habitaciones" element={<Habitaciones />} />
-          <Route path="reportes" element={<Reportes />} />
-          <Route path="reservaciones" element={<Reservaciones />} />
           <Route path="restaurante" element={<Restaurante />} />
+          <Route path="reservaciones" element={<Reservaciones />} />
+          <Route path="gastos" element={<Gastos />} />
           <Route path="usuarios" element={<Usuarios />} />
+          <Route path="reportes" element={<Reportes />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
