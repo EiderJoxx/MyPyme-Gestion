@@ -1,5 +1,4 @@
-import type { Habitacion, Plato } from "../types";
-
+import type { Habitacion, ItemMenu, Reserva } from "../types";
 export const habitaciones: Habitacion[] = [
   {
     id: 1,
@@ -27,37 +26,75 @@ export const habitaciones: Habitacion[] = [
   },
 ];
 
-export const platos: Plato[] = [
+export const menuInicial: ItemMenu[] = [
   {
     id: 1,
     nombre: "Ceviche de camarón",
+    area: "Restaurante",
     categoria: "Entradas",
     precio: 28000,
     descripcion: "Camarón fresco con limón y cilantro.",
     foto: "",
+    disponible: true,
   },
   {
     id: 2,
     nombre: "Pescado frito",
+    area: "Restaurante",
     categoria: "Platos fuertes",
     precio: 42000,
     descripcion: "Con patacones, arroz de coco y ensalada.",
     foto: "",
+    disponible: true,
   },
   {
     id: 3,
     nombre: "Arroz con mariscos",
+    area: "Restaurante",
     categoria: "Mariscos",
     precio: 48000,
     descripcion: "Camarones, calamar y pulpo.",
     foto: "",
+    disponible: true,
   },
   {
     id: 4,
     nombre: "Flan de coco",
+    area: "Restaurante",
     categoria: "Postres",
     precio: 12000,
     descripcion: "Con salsa de caramelo.",
     foto: "",
+    disponible: true,
+  },
+  {
+    id: 5,
+    nombre: "Mojito",
+    area: "Bar",
+    categoria: "Cocteles",
+    precio: 18000,
+    descripcion: "Ron blanco, hierbabuena y limón.",
+    foto: "",
+    disponible: true,
+  },
+  {
+    id: 6,
+    nombre: "Cerveza nacional",
+    area: "Bar",
+    categoria: "Cervezas",
+    precio: 6000,
+    descripcion: "Botella de 330 ml, bien fría.",
+    foto: "",
+    disponible: true,
+  },
+  {
+    id: 7,
+    nombre: "Limonada de coco",
+    area: "Bar",
+    categoria: "Sin alcohol",
+    precio: 9000,
+    descripcion: "Con pulpa de coco y hielo frapé.",
+    foto: "",
+    disponible: true,
   },
 ];

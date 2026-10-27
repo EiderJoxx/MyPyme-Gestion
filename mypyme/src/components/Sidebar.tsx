@@ -2,13 +2,10 @@ import { NavLink } from "react-router-dom";
 
 const enlaces = [
   { ruta: "/admin", texto: "Inicio" },
-  { ruta: "/admin/bar", texto: "Bar" },
-  { ruta: "/admin/habitaciones", texto: "Habitaciones" },
-  { ruta: "/admin/restaurante", texto: "Restaurante" },
-  { ruta: "/admin/reservaciones", texto: "Reservaciones" },
-  { ruta: "/admin/gastos", texto: "Gastos" },
-  { ruta: "/admin/usuarios", texto: "Usuarios" },
-  { ruta: "/admin/reportes", texto: "Reportes" },
+  { ruta: "/admin/hospedaje", texto: "Hospedaje" },
+  { ruta: "/admin/restaurantebar", texto: "Restaurante y Bar" },
+  { ruta: "/admin/administracion", texto: "Administración" },
+  { ruta: "/admin/sistemas", texto: "Sistema" },
 ];
 
 export default function Sidebar() {

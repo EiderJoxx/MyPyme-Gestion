@@ -30,27 +30,25 @@ export interface Reserva {
   anticipo: number;
 }
 
-export interface Bebida {
-  id: number;
-  nombre: string;
-  precio: number;
-  descripcion: string;
-  foto: string;
-}
+export type AreaMenu = "Restaurante" | "Bar";
+export type MetodoPago = "Efectivo" | "Tarjeta" | "Transferencia";
 
-export interface Plato {
+export interface ItemMenu {
   id: number;
   nombre: string;
+  area: AreaMenu;
   categoria: string;
   precio: number;
   descripcion: string;
   foto: string;
+  disponible: boolean;
 }
 
 export interface ItemOrden {
-  platoId: number;
+  itemId: number;
   nombre: string;
-  precio: number;
+  area: AreaMenu;
+  precio: number; // precio del momento del pedido
   cantidad: number;
 }
 
@@ -61,5 +59,7 @@ export interface Orden {
   mesa: number;
   fecha: string;
   items: ItemOrden[];
+  nota: string;
   estado: EstadoOrden;
+  metodoPago?: MetodoPago;
 }
