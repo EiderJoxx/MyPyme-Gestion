@@ -5,6 +5,8 @@ import Landing from "./pages/public/Landing";
 import Login from "./pages/public/Login";
 import Inicio from "./pages/admin/Inicio";
 import RestauranteBar from "./pages/admin/RestauranteBar";
+import Hospedaje from "./pages/admin/Hospedaje";
+import Administracion from "./pages/admin/Administracion";
 
 export default function App() {
   return (
@@ -17,7 +19,29 @@ export default function App() {
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Inicio />} />
+          <Route path="hospedaje" element={<Hospedaje />} />
+          <Route
+            path="habitaciones"
+            element={<Navigate to="/admin/hospedaje" replace />}
+          />
+          <Route
+            path="reservaciones"
+            element={<Navigate to="/admin/hospedaje" replace />}
+          />
           <Route path="restaurantebar" element={<RestauranteBar />} />
+          <Route path="administracion" element={<Administracion />} />
+          <Route
+            path="inventario"
+            element={<Navigate to="/admin/administracion" replace />}
+          />
+          <Route
+            path="gastos"
+            element={<Navigate to="/admin/administracion" replace />}
+          />
+          <Route
+            path="reportes"
+            element={<Navigate to="/admin/administracion" replace />}
+          />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

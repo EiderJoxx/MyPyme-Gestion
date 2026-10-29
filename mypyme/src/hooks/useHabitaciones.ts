@@ -1,31 +1,21 @@
-import { useEffect, useState } from "react";
-import type { EstadoHabitacion, Habitacion } from "../types";
+import { useLocalStorage } from "./useLocalStorage";
 import { habitaciones as iniciales } from "../data/datosPrueba";
-
-const CLAVE = "mypyme_habitaciones";
-
-function cargar(): Habitacion[] {
-  try {
-    const guardado = localStorage.getItem(CLAVE);
-    return guardado ? JSON.parse(guardado) : iniciales;
-  } catch {
-    return iniciales;
-  }
-}
+import type { EstadoHabitacion, Habitacion } from "../types";
 
 export function useHabitaciones() {
-  const [habitaciones, setHabitaciones] = useState<Habitacion[]>(cargar);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(CLAVE, JSON.stringify(habitaciones));
-    } catch {
-      console.warn("No se pudieron guardar las habitaciones");
-    }
-  }, [habitaciones]);
+  const [habitaciones, setHabitaciones] = useLocalStorage<Habitacion[]>(
+    "mypyme_habitaciones",
+    iniciales,
+  );
 
   function agregar(nueva: Omit<Habitacion, "id">) {
     setHabitaciones((prev) => [...prev, { ...nueva, id: Date.now() }]);
+  }
+
+  function actualizar(id: number, datos: Omit<Habitacion, "id">) {
+    setHabitaciones((prev) =>
+      prev.map((h) => (h.id === id ? { ...datos, id } : h)),
+    );
   }
 
   function cambiarEstado(id: number, estado: EstadoHabitacion) {
@@ -38,5 +28,5 @@ export function useHabitaciones() {
     setHabitaciones((prev) => prev.filter((h) => h.id !== id));
   }
 
-  return { habitaciones, agregar, cambiarEstado, eliminar };
+  return { habitaciones, agregar, actualizar, cambiarEstado, eliminar };
 }

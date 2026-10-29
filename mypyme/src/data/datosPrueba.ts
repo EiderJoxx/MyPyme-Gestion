@@ -1,4 +1,5 @@
-import type { Habitacion, ItemMenu, Reserva } from "../types";
+import { hoyISO, sumarDias } from "../utils/fechas";
+import type { Gasto, Habitacion, Insumo, ItemMenu, Reserva } from "../types";
 export const habitaciones: Habitacion[] = [
   {
     id: 1,
@@ -98,3 +99,125 @@ export const menuInicial: ItemMenu[] = [
     disponible: true,
   },
 ];
+
+export function reservasIniciales(): Reserva[] {
+  const hoy = hoyISO();
+  return [
+    {
+      id: 1,
+      cliente: "Laura Gómez",
+      documento: "1065000111",
+      telefono: "3001234567",
+      habitacionId: 2,
+      personas: 2,
+      checkIn: sumarDias(hoy, -1),
+      checkOut: sumarDias(hoy, 2),
+      estado: "CheckIn",
+      precioNoche: 180000,
+      anticipo: 200000,
+      notas: "",
+    },
+    {
+      id: 2,
+      cliente: "Carlos Pérez",
+      documento: "1065000222",
+      telefono: "3109876543",
+      habitacionId: 1,
+      personas: 1,
+      checkIn: hoy,
+      checkOut: sumarDias(hoy, 2),
+      estado: "Confirmada",
+      precioNoche: 120000,
+      anticipo: 50000,
+      notas: "Llega en la tarde",
+    },
+    {
+      id: 3,
+      cliente: "Familia Rojas",
+      documento: "1065000333",
+      telefono: "3205551234",
+      habitacionId: 3,
+      personas: 4,
+      checkIn: sumarDias(hoy, 3),
+      checkOut: sumarDias(hoy, 6),
+      estado: "Pendiente",
+      precioNoche: 250000,
+      anticipo: 0,
+      notas: "",
+    },
+  ];
+}
+
+export const insumosIniciales: Insumo[] = [
+  {
+    id: 1,
+    nombre: "Cerveza nacional (botella)",
+    categoria: "Bebidas",
+    unidad: "unid",
+    stock: 48,
+    stockMinimo: 24,
+    costoUnitario: 3200,
+    itemMenuId: 6,
+    consumoPorVenta: 1,
+  },
+  {
+    id: 2,
+    nombre: "Ron blanco",
+    categoria: "Bebidas",
+    unidad: "botella",
+    stock: 6,
+    stockMinimo: 3,
+    costoUnitario: 52000,
+    consumoPorVenta: 1,
+  },
+  {
+    id: 3,
+    nombre: "Camarón",
+    categoria: "Alimentos",
+    unidad: "kg",
+    stock: 4,
+    stockMinimo: 5,
+    costoUnitario: 38000,
+    consumoPorVenta: 1,
+  },
+  {
+    id: 4,
+    nombre: "Jabón de baño",
+    categoria: "Aseo y habitaciones",
+    unidad: "unid",
+    stock: 40,
+    stockMinimo: 20,
+    costoUnitario: 1200,
+    consumoPorVenta: 1,
+  },
+];
+
+export function gastosIniciales(): Gasto[] {
+  const hoy = hoyISO();
+  return [
+    {
+      id: 1,
+      fecha: sumarDias(hoy, -3),
+      categoria: "Servicios públicos",
+      descripcion: "Energía del mes",
+      proveedor: "Electricaribe",
+      monto: 420000,
+    },
+    {
+      id: 2,
+      fecha: sumarDias(hoy, -2),
+      categoria: "Mantenimiento",
+      descripcion: "Reparación del aire acondicionado",
+      proveedor: "Frío Total",
+      monto: 180000,
+    },
+    {
+      id: 3,
+      fecha: sumarDias(hoy, -1),
+      categoria: "Compras de inventario",
+      descripcion: "Camarón y pescado",
+      proveedor: "Pescadería El Puerto",
+      monto: 350000,
+    },
+  ];
+}

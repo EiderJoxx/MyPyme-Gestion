@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AreaMenu, ItemMenu } from "../../types";
+import type { AreaMenu, ItemMenu, MetodoPago } from "../../types";
 import { AREAS, CATEGORIAS_MENU } from "../../data/constantes";
 import { useRestauranteBar } from "../../hooks/useRestauranteBar";
 import { dinero } from "../../utils/formato";
@@ -8,6 +8,7 @@ import FormularioItem from "../../components/restaurante/FormularioItem";
 import TarjetaItem from "../../components/restaurante/TarjetaItem";
 import NuevaOrden from "../../components/restaurante/NuevaOrden";
 import ListaOrdenes from "../../components/restaurante/ListaOrdenes";
+import { useInventario } from "../../hooks/useInventario";
 
 type Pestana = "ordenes" | "menu";
 type FiltroArea = "Todas" | AreaMenu;
@@ -23,6 +24,14 @@ export default function Restaurante() {
     cobrar,
     anular,
   } = useRestauranteBar();
+
+  const { descontarVenta } = useInventario();
+
+  function alCobrar(id: number, metodo: MetodoPago) {
+    const orden = ordenes.find((o) => o.id === id);
+    cobrar(id, metodo);
+    if (orden) descontarVenta(orden.items, `Venta mesa ${orden.mesa}`);
+  }
 
   const [pestana, setPestana] = useState<Pestana>("ordenes");
   const [mesa, setMesa] = useState<number | null>(null);
@@ -154,7 +163,7 @@ export default function Restaurante() {
           <div className="col-lg-7">
             <ListaOrdenes
               ordenes={ordenes}
-              onCobrar={cobrar}
+              onCobrar={alCobrar}
               onAnular={anular}
             />
           </div>

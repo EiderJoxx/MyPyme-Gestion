@@ -39,3 +39,39 @@ export const METODOS_PAGO: MetodoPago[] = [
 ];
 
 export const MESAS: number[] = Array.from({ length: 10 }, (_, i) => i + 1);
+
+export const CATEGORIAS_INSUMO: string[] = [
+  "Bebidas",
+  "Alimentos",
+  "Aseo y habitaciones",
+  "Utensilios",
+  "Otros",
+];
+
+export const UNIDADES: string[] = [
+  "unid",
+  "kg",
+  "lb",
+  "litro",
+  "botella",
+  "caja",
+  "paquete",
+];
+
+export const CATEGORIAS_GASTO: string[] = [
+  "Compras de inventario",
+  "Nómina",
+  "Servicios públicos",
+  "Mantenimiento",
+  "Arriendo",
+  "Impuestos",
+  "Publicidad",
+  "Otros",
+];
+
+export const MOTIVOS_SALIDA: string[] = [
+  "Consumo interno",
+  "Merma o pérdida",
+  "Cortesía",
+  "Otro",
+];

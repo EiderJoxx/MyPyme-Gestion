@@ -48,7 +48,7 @@ export interface ItemOrden {
   itemId: number;
   nombre: string;
   area: AreaMenu;
-  precio: number; // precio del momento del pedido
+  precio: number;
   cantidad: number;
 }
 
@@ -62,4 +62,57 @@ export interface Orden {
   nota: string;
   estado: EstadoOrden;
   metodoPago?: MetodoPago;
+}
+export interface Reserva {
+  id: number;
+  cliente: string;
+  documento: string;
+  telefono: string;
+  habitacionId: number;
+  personas: number;
+  checkIn: string;
+  checkOut: string;
+  estado: EstadoReserva;
+  precioNoche: number;
+  anticipo: number;
+  notas: string;
+}
+export type TipoMovimiento = "Entrada" | "Salida" | "Ajuste";
+
+export interface Insumo {
+  id: number;
+  nombre: string;
+  categoria: string;
+  unidad: string;
+  stock: number;
+  stockMinimo: number;
+  costoUnitario: number;
+  itemMenuId?: number;
+  consumoPorVenta: number;
+}
+
+export interface MovimientoInventario {
+  id: number;
+  insumoId: number;
+  nombreInsumo: string;
+  tipo: TipoMovimiento;
+  cantidad: number;
+  fecha: string;
+  detalle: string;
+}
+
+export interface DatosMovimiento {
+  cantidad: number;
+  costoTotal: number;
+  proveedor: string;
+  detalle: string;
+}
+
+export interface Gasto {
+  id: number;
+  fecha: string;
+  categoria: string;
+  descripcion: string;
+  proveedor: string;
+  monto: number;
 }
