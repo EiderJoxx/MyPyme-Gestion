@@ -23,7 +23,6 @@ function leer(clave: string): { existe: boolean; datos: ItemViejo[] } {
   }
 }
 
-// Pasa a un solo menú los platos y bebidas guardados por las versiones anteriores
 function crearMenuInicial(): ItemMenu[] {
   const platos = leer("mypyme_platos");
   const bebidas = leer("mypyme_bebidas");
@@ -45,7 +44,6 @@ function crearMenuInicial(): ItemMenu[] {
   ];
 }
 
-// Adapta las órdenes guardadas con el formato anterior
 function normalizarOrdenes(ordenes: Orden[]): Orden[] {
   return ordenes.map((o) => ({
     ...o,
@@ -90,8 +88,12 @@ export function useRestauranteBar() {
     );
   }
 
-  // Crea la orden de la mesa, o agrega productos a la que ya está abierta
-  function guardarOrden(mesa: number, items: ItemOrden[], nota: string) {
+  function guardarOrden(
+    mesa: number,
+    items: ItemOrden[],
+    nota: string,
+    vendedor?: { id: number; nombre: string },
+  ) {
     setOrdenes((prev) => {
       const abierta = prev.find(
         (o) => o.mesa === mesa && o.estado === "Abierta",
@@ -105,6 +107,8 @@ export function useRestauranteBar() {
           items,
           nota: nota.trim(),
           estado: "Abierta",
+          vendedorId: vendedor?.id,
+          vendedor: vendedor?.nombre,
         };
         return [...prev, nueva];
       }

@@ -8,6 +8,7 @@ interface Props {
   ordenes: Orden[];
   onCobrar: (id: number, metodo: MetodoPago) => void;
   onAnular: (id: number) => void;
+  puedeAnular?: boolean;
 }
 
 const ESTADOS: EstadoOrden[] = ["Abierta", "Cerrada", "Anulada"];
@@ -17,7 +18,12 @@ const COLOR: Record<EstadoOrden, string> = {
   Anulada: "text-bg-secondary",
 };
 
-export default function ListaOrdenes({ ordenes, onCobrar, onAnular }: Props) {
+export default function ListaOrdenes({
+  ordenes,
+  onCobrar,
+  onAnular,
+  puedeAnular = true,
+}: Props) {
   const [filtro, setFiltro] = useState<EstadoOrden>("Abierta");
   const [metodos, setMetodos] = useState<Record<number, MetodoPago>>({});
 
@@ -68,6 +74,11 @@ export default function ListaOrdenes({ ordenes, onCobrar, onAnular }: Props) {
                       timeStyle: "short",
                     })}
                   </p>
+                  {o.vendedor && (
+                    <p className="small text-secondary mb-2">
+                      Vendedor: {o.vendedor}
+                    </p>
+                  )}
 
                   <ul className="list-unstyled small mb-2">
                     {o.items.map((i) => (
@@ -125,19 +136,22 @@ export default function ListaOrdenes({ ordenes, onCobrar, onAnular }: Props) {
                         >
                           Cobrar y cerrar
                         </button>
-                        <button
-                          className="btn btn-outline-danger btn-sm"
-                          onClick={() => {
-                            if (
-                              window.confirm(
-                                `¿Anular la orden de la mesa ${o.mesa}?`,
-                              )
-                            )
-                              onAnular(o.id);
-                          }}
-                        >
-                          Anular
-                        </button>
+                        {puedeAnular && (
+                          <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  `¿Anular la orden de la mesa ${o.mesa}?`
+                                )
+                              ) {
+                                onAnular(o.id);
+                              }
+                            }}
+                          >
+                            Anular
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}

@@ -1,3 +1,24 @@
+export type Rol = "Administrador" | "Vendedor";
+
+export interface Usuario {
+  id: number;
+  nombre: string;
+  usuario: string;
+  rol: Rol;
+  activo: boolean;
+  salt: string;
+  hash: string; // contraseña cifrada
+  creado: string;
+}
+
+export interface DatosFormularioUsuario {
+  nombre: string;
+  usuario: string;
+  rol: Rol;
+  activo: boolean;
+  clave: string;
+}
+
 export type EstadoHabitacion =
   | "Disponible"
   | "Ocupada"
@@ -62,6 +83,8 @@ export interface Orden {
   nota: string;
   estado: EstadoOrden;
   metodoPago?: MetodoPago;
+  vendedorId?: number;
+  vendedor?: string;
 }
 export interface Reserva {
   id: number;

@@ -9,6 +9,7 @@ import TarjetaItem from "../../components/restaurante/TarjetaItem";
 import NuevaOrden from "../../components/restaurante/NuevaOrden";
 import ListaOrdenes from "../../components/restaurante/ListaOrdenes";
 import { useInventario } from "../../hooks/useInventario";
+import { useAuth } from "../../auth/useAuth";
 
 type Pestana = "ordenes" | "menu";
 type FiltroArea = "Todas" | AreaMenu;
@@ -26,6 +27,8 @@ export default function Restaurante() {
   } = useRestauranteBar();
 
   const { descontarVenta } = useInventario();
+
+  const { usuario } = useAuth();
 
   function alCobrar(id: number, metodo: MetodoPago) {
     const orden = ordenes.find((o) => o.id === id);
@@ -157,7 +160,16 @@ export default function Restaurante() {
               mesa={mesa}
               mesasOcupadas={abiertas.map((o) => o.mesa)}
               onMesaChange={setMesa}
-              onGuardar={guardarOrden}
+              onGuardar={(m, items, nota) =>
+                guardarOrden(
+                  m,
+                  items,
+                  nota,
+                  usuario
+                    ? { id: usuario.id, nombre: usuario.nombre }
+                    : undefined,
+                )
+              }
             />
           </div>
           <div className="col-lg-7">

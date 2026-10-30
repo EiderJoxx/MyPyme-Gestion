@@ -75,3 +75,17 @@ body {
   min-width: 0;
   padding: 24px;
 }
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-usuario {
+  margin-top: auto;
+  padding: 12px 8px 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.9rem;
+}
+.sidebar-usuario small {
+  color: #cfe3e6;
+}

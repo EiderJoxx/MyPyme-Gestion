@@ -7,6 +7,7 @@ interface Props {
   menu: ItemMenu[];
   mesa: number | null;
   mesasOcupadas: number[];
+  limite?: (m: ItemMenu) => number | undefined;
   onMesaChange: (mesa: number | null) => void;
   onGuardar: (mesa: number, items: ItemOrden[], nota: string) => void;
 }
@@ -17,6 +18,7 @@ export default function NuevaOrden({
   menu,
   mesa,
   mesasOcupadas,
+  limite,
   onMesaChange,
   onGuardar,
 }: Props) {
@@ -30,12 +32,22 @@ export default function NuevaOrden({
   const total = items.reduce((suma, i) => suma + i.precio * i.cantidad, 0);
   const mesaOcupada = mesa !== null && mesasOcupadas.includes(mesa);
 
-  const disponibles = menu
+  const productos = menu
     .filter((m) => m.disponible)
     .filter((m) => area === "Todas" || m.area === area)
     .filter((m) => m.nombre.toLowerCase().includes(busqueda.toLowerCase()));
 
   function agregar(m: ItemMenu) {
+    const tope = limite?.(m);
+    const actual = items.find((i) => i.itemId === m.id)?.cantidad ?? 0;
+    if (tope !== undefined && actual >= tope) {
+      return setError(
+        tope === 0
+          ? `${m.nombre} está agotado`
+          : `Solo quedan ${tope} de ${m.nombre}`,
+      );
+    }
+    setError("");
     setItems((prev) =>
       prev.some((i) => i.itemId === m.id)
         ? prev.map((i) =>
@@ -54,12 +66,12 @@ export default function NuevaOrden({
     );
   }
 
-  function cambiarCantidad(itemId: number, delta: number) {
+  function restar(itemId: number) {
+    setError("");
     setItems((prev) =>
       prev.flatMap((i) => {
         if (i.itemId !== itemId) return [i];
-        const cantidad = i.cantidad + delta;
-        return cantidad > 0 ? [{ ...i, cantidad }] : [];
+        return i.cantidad > 1 ? [{ ...i, cantidad: i.cantidad - 1 }] : [];
       }),
     );
   }
@@ -79,7 +91,11 @@ export default function NuevaOrden({
       <div className="card-body d-flex flex-column gap-3">
         <h2 className="h5 mb-0">Tomar pedido</h2>
 
-        {error && <div className="alert alert-danger py-2 mb-0">{error}</div>}
+        {error && (
+          <div className="alert alert-danger py-2 mb-0" role="alert">
+            {error}
+          </div>
+        )}
 
         <div>
           <p className="form-label mb-1">Mesa</p>
@@ -139,31 +155,44 @@ export default function NuevaOrden({
             </select>
           </div>
 
-          {disponibles.length === 0 ? (
+          {productos.length === 0 ? (
             <div className="alert alert-light border mb-0">
-              No hay productos disponibles. Agrégalos en la pestaña Menú.
+              No hay productos disponibles.
             </div>
           ) : (
             <div
               className="list-group"
               style={{ maxHeight: 220, overflowY: "auto" }}
             >
-              {disponibles.map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  className="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2"
-                  onClick={() => agregar(m)}
-                >
-                  <span>
-                    {m.nombre}{" "}
-                    <span className={`badge ${COLOR_AREA[m.area]}`}>
-                      {m.area}
+              {productos.map((m) => {
+                const tope = limite?.(m);
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    disabled={tope === 0}
+                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2"
+                    onClick={() => agregar(m)}
+                  >
+                    <span>
+                      {m.nombre}{" "}
+                      <span className={`badge ${COLOR_AREA[m.area]}`}>
+                        {m.area}
+                      </span>{" "}
+                      {tope !== undefined && (
+                        <small
+                          className={
+                            tope === 0 ? "text-danger" : "text-secondary"
+                          }
+                        >
+                          {tope === 0 ? "Agotado" : `${tope} disp.`}
+                        </small>
+                      )}
                     </span>
-                  </span>
-                  <span className="text-secondary">{dinero(m.precio)}</span>
-                </button>
-              ))}
+                    <span className="text-secondary">{dinero(m.precio)}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -187,7 +216,7 @@ export default function NuevaOrden({
                       type="button"
                       className="btn btn-outline-secondary"
                       aria-label={`Quitar uno de ${i.nombre}`}
-                      onClick={() => cambiarCantidad(i.itemId, -1)}
+                      onClick={() => restar(i.itemId)}
                     >
                       −
                     </button>
@@ -196,7 +225,10 @@ export default function NuevaOrden({
                       type="button"
                       className="btn btn-outline-secondary"
                       aria-label={`Agregar uno de ${i.nombre}`}
-                      onClick={() => cambiarCantidad(i.itemId, 1)}
+                      onClick={() => {
+                        const m = menu.find((x) => x.id === i.itemId);
+                        if (m) agregar(m);
+                      }}
                     >
                       +
                     </button>
