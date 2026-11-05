@@ -1,5 +1,10 @@
 @import "../src/css/variables.css";
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
 * {
   margin: 0;
   padding: 0;

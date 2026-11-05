@@ -5,7 +5,7 @@ import type { EstadoReserva, Reserva } from "../types";
 export function useReservas() {
   const [reservas, setReservas] = useLocalStorage<Reserva[]>(
     "mypyme_reservas",
-    reservasIniciales,
+    reservasIniciales(),
   );
 
   function crear(datos: Omit<Reserva, "id">) {

@@ -39,16 +39,7 @@ export interface Habitacion {
   capacidad: number;
   precioNoche: number;
   estado: EstadoHabitacion;
-}
-
-export interface Reserva {
-  id: number;
-  cliente: string;
-  habitacionId: number;
-  checkIn: string;
-  checkOut: string;
-  estado: EstadoReserva;
-  anticipo: number;
+  imagen?: string;
 }
 
 export type AreaMenu = "Restaurante" | "Bar";
@@ -63,6 +54,14 @@ export interface ItemMenu {
   descripcion: string;
   foto: string;
   disponible: boolean;
+}
+
+export interface Bebida {
+  id: number;
+  nombre: string;
+  precio: number;
+  descripcion: string;
+  foto: string;
 }
 
 export interface ItemOrden {

@@ -8,6 +8,7 @@ export const habitaciones: Habitacion[] = [
     capacidad: 1,
     precioNoche: 120000,
     estado: "Disponible",
+    imagen: "/habitaciones/habitacion1.jpg",
   },
   {
     id: 2,

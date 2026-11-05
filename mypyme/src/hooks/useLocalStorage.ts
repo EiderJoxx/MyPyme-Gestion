@@ -12,7 +12,9 @@ export function useLocalStorage<T>(
         const dato = JSON.parse(guardado) as T;
         return normalizar ? normalizar(dato) : dato;
       }
-    } catch {}
+    } catch (error) {
+      console.warn(`No se pudieron leer los datos guardados (${clave})`, error);
+    }
     return typeof inicial === "function"
       ? (inicial as () => T)()
       : (inicial as T);
