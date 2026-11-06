@@ -1,0 +1,140 @@
+/* Sección Sobre Nosotros */
+.about-section {
+  background-color: #3b8ebf;
+  color: #ffffff;
+  padding-top: 60px;
+  padding-bottom: 100px;
+  position: relative;
+}
+
+.about-wave-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.about-wave-svg {
+  display: block;
+  width: 100%;
+  height: 60px;
+}
+
+/* Sección Experiencia */
+.experience-section {
+  padding: 4rem 0;
+  background-color: #f8f9fa;
+}
+
+.experience-title {
+  color: #003366;
+  font-weight: bold;
+}
+
+.experience-subtitle {
+  color: #003366;
+  font-weight: bold;
+}
+
+.experience-image {
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  height: auto;
+}
+
+.experience-list {
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  color: #6c757d;
+}
+
+/* Sección Habitaciones */
+.rooms-section {
+  padding: 4rem 0;
+  background-color: #ffffff;
+}
+
+.rooms-title {
+  color: #003366;
+  font-weight: bold;
+}
+
+.room-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  height: 100%;
+}
+
+.room-image {
+  height: 220px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.room-title {
+  color: #003366;
+  font-weight: bold;
+}
+
+/* Sección Formulario de Reserva */
+.booking-section {
+  padding: 4rem 0;
+  background-color: #f0f4f8;
+}
+
+.booking-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.booking-title {
+  color: #003366;
+  font-weight: bold;
+}
+
+.btn-whatsapp-submit {
+  background-color: #25d366;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 15px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-whatsapp-submit:hover {
+  background-color: #1ebc57;
+  color: white;
+}
+
+/* Botón Flotante de WhatsApp */
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #25d366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+}
