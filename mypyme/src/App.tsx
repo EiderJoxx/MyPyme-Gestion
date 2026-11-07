@@ -11,6 +11,7 @@ import Usuarios from "./pages/admin/Usuarios";
 import Ventas from "./pages/admin/Ventas";
 import AuthProvider from "./auth/AuthProvider";
 import Cabanas from "./pages/public/Cabanas";
+import Planes from "./pages/public/Planes";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cabanas-frente-al-mar" element={<Cabanas />} />
+            <Route path="/planes-y-experiencias" element={<Planes />} />
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>

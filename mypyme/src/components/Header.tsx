@@ -29,7 +29,6 @@ export default function Header() {
           />
         </Link>
 
-        {/* Navegación Escritorio */}
         <nav className="d-none d-lg-flex align-items-center gap-4 header-nav">
           <button
             onClick={() => irASeccion("inicio")}
@@ -37,7 +36,6 @@ export default function Header() {
           >
             Inicio
           </button>
-
           <button
             onClick={() => irASeccion("sobre-nosotros")}
             className="btn btn-link header-link p-0"
@@ -45,7 +43,6 @@ export default function Header() {
             Sobre Nosotros
           </button>
 
-          {/* Menú Desplegable */}
           <div className="dropdown">
             <button
               className="btn text-white fw-bold p-0 dropdown-toggle border-0 header-dropdown-btn"
@@ -60,12 +57,9 @@ export default function Header() {
                 </Link>
               </li>
               <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => irASeccion("servicios")}
-                >
+                <Link className="dropdown-item" to="/planes-y-experiencias">
                   Planes y Experiencias
-                </button>
+                </Link>
               </li>
               <li>
                 <button
