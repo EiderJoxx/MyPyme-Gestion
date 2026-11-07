@@ -7,7 +7,7 @@ export interface Usuario {
   rol: Rol;
   activo: boolean;
   salt: string;
-  hash: string; // contraseña cifrada
+  hash: string;
   creado: string;
 }
 
@@ -40,6 +40,9 @@ export interface Habitacion {
   precioNoche: number;
   estado: EstadoHabitacion;
   imagen?: string;
+  descripcion?: string;
+  checkIn?: string;
+  checkOut?: string;
 }
 
 export type AreaMenu = "Restaurante" | "Bar";

@@ -10,6 +10,7 @@ import Administracion from "./pages/admin/Administracion";
 import Usuarios from "./pages/admin/Usuarios";
 import Ventas from "./pages/admin/Ventas";
 import AuthProvider from "./auth/AuthProvider";
+import Cabanas from "./pages/public/Cabanas";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/cabanas-frente-al-mar" element={<Cabanas />} />
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>
@@ -29,7 +31,6 @@ export default function App() {
             <Route path="administracion" element={<Administracion />} />
             <Route path="usuarios" element={<Usuarios />} />
 
-            {/* Rutas antiguas: redirigen a la sección unificada */}
             <Route
               path="habitaciones"
               element={<Navigate to="/admin/hospedaje" replace />}

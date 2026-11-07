@@ -1,30 +1,32 @@
 import { hoyISO, sumarDias } from "../utils/fechas";
 import type { Gasto, Habitacion, Insumo, ItemMenu, Reserva } from "../types";
+
 export const habitaciones: Habitacion[] = [
   {
     id: 1,
     numero: "101",
-    tipo: "Sencilla",
-    capacidad: 1,
-    precioNoche: 120000,
+    tipo: "Cabaña para parejas",
+    capacidad: 2,
+    precioNoche: 280000,
     estado: "Disponible",
-    imagen: "/habitaciones/habitacion1.jpg",
+    imagen: "/galeria/habitacion2.jpg",
+    descripcion:
+      "Cabaña acogedora y privada, ideal para parejas que desean disfrutar de una experiencia tranquila y romántica frente al mar, en un ambiente natural y relajado.",
+    checkIn: "11:00 a.m.",
+    checkOut: "10:30 a.m.",
   },
   {
     id: 2,
     numero: "102",
-    tipo: "Doble",
-    capacidad: 2,
-    precioNoche: 180000,
-    estado: "Ocupada",
-  },
-  {
-    id: 3,
-    numero: "201",
-    tipo: "Familiar",
+    tipo: "Cabaña familiar",
     capacidad: 4,
-    precioNoche: 250000,
-    estado: "Limpieza",
+    precioNoche: 420000,
+    estado: "Disponible",
+    imagen: "/galeria/habitacion3.jpg",
+    descripcion:
+      "Espacio cómodo y funcional, perfecto para familias o grupos pequeños que buscan compartir momentos especiales y disfrutar del mar en un entorno tranquilo.",
+    checkIn: "11:00 a.m.",
+    checkOut: "10:30 a.m.",
   },
 ];
 

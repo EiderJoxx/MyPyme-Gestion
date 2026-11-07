@@ -1,26 +1,51 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "../css/Header.css";
 
 export default function Header() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const irASeccion = (id: string) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+    } else {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <header className="header-main py-2">
       <div className="container d-flex align-items-center justify-content-between">
         <Link to="/" className="d-flex align-items-center text-decoration-none">
           <img
-            src="../../public/galeria/logo.jpg"
+            src="/galeria/logo.jpg"
             alt="Aescondidas Logo"
             className="header-logo"
           />
         </Link>
 
+        {/* Navegación Escritorio */}
         <nav className="d-none d-lg-flex align-items-center gap-4 header-nav">
-          <a href="#inicio" className="header-link">
+          <button
+            onClick={() => irASeccion("inicio")}
+            className="btn btn-link header-link p-0"
+          >
             Inicio
-          </a>
-          <a href="#sobre-nosotros" className="header-link">
-            Sobre Nosotros
-          </a>
+          </button>
 
+          <button
+            onClick={() => irASeccion("sobre-nosotros")}
+            className="btn btn-link header-link p-0"
+          >
+            Sobre Nosotros
+          </button>
+
+          {/* Menú Desplegable */}
           <div className="dropdown">
             <button
               className="btn text-white fw-bold p-0 dropdown-toggle border-0 header-dropdown-btn"
@@ -30,26 +55,35 @@ export default function Header() {
             </button>
             <ul className="dropdown-menu shadow border-0">
               <li>
-                <a className="dropdown-item" href="#hospedaje">
+                <Link className="dropdown-item" to="/cabanas-frente-al-mar">
                   Cabañas Frente al Mar
-                </a>
+                </Link>
               </li>
               <li>
-                <a className="dropdown-item" href="#servicios">
+                <button
+                  className="dropdown-item"
+                  onClick={() => irASeccion("servicios")}
+                >
                   Planes y Experiencias
-                </a>
+                </button>
               </li>
               <li>
-                <a className="dropdown-item" href="#contacto">
+                <button
+                  className="dropdown-item"
+                  onClick={() => irASeccion("contacto")}
+                >
                   Eventos y celebraciones
-                </a>
+                </button>
               </li>
             </ul>
           </div>
 
-          <a href="#contacto" className="header-link">
+          <button
+            onClick={() => irASeccion("contacto")}
+            className="btn btn-link header-link p-0"
+          >
             Contáctanos
-          </a>
+          </button>
         </nav>
 
         <Link

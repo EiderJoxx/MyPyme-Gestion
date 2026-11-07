@@ -35,3 +35,15 @@
 .header-dropdown-btn:hover {
   color: #ffc107;
 }
+
+.header-link {
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.header-link:hover {
+  color: #ffc107 !important;
+}
