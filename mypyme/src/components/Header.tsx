@@ -62,22 +62,16 @@ export default function Header() {
                 </Link>
               </li>
               <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => irASeccion("contacto")}
-                >
+                <Link className="dropdown-item" to="/eventos-y-celebraciones">
                   Eventos y celebraciones
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
 
-          <button
-            onClick={() => irASeccion("contacto")}
-            className="btn btn-link header-link p-0"
-          >
+          <Link to="/contacto" className="btn btn-link header-link p-0">
             Contáctanos
-          </button>
+          </Link>
         </nav>
 
         <Link

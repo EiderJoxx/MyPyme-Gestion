@@ -1,0 +1,89 @@
+.eventos-title {
+  color: #003366;
+  font-weight: 700;
+}
+
+.eventos-subtitle {
+  color: #003366;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.btn-hero-evento {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 30px;
+  padding: 10px 30px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-hero-evento:hover {
+  background-color: white;
+  color: #003366;
+}
+
+.eventos-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.eventos-list li {
+  margin-bottom: 1.5rem;
+}
+
+.eventos-list strong {
+  color: #003366;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.eventos-list p {
+  color: #555;
+  margin-left: 28px;
+}
+
+.eventos-blue-section {
+  background-color: #0078b8;
+  color: white;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.eventos-icon-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.eventos-icon-box .icon {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.eventos-icon-box span {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.eventos-form-container {
+  background-color: #ffffff;
+  padding: 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #dee2e6;
+}
+
+@media (max-width: 768px) {
+  .eventos-form-container {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,100 @@
+.contact-section {
+  padding: 60px 0;
+  background-color: #ffffff;
+}
+
+.contact-title {
+  color: #003366;
+  font-weight: 800;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.contact-form .form-label {
+  color: #333;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.contact-form .form-control {
+  border-radius: 50px;
+  padding: 12px 20px;
+  border: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+}
+
+.contact-form textarea.form-control {
+  border-radius: 20px;
+}
+
+.contact-form .form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(0, 51, 102, 0.15);
+  border-color: #003366;
+}
+
+.contact-info-card {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 3rem 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.contact-info-title {
+  color: #003366;
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  line-height: 1.4;
+}
+
+.contact-info-item {
+  margin-bottom: 2rem;
+}
+
+.contact-info-icon {
+  color: #0078b8;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 10px;
+}
+
+.contact-info-label {
+  color: #003366;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.contact-info-value {
+  color: #555;
+  font-size: 1.05rem;
+}
+
+/* Mapa */
+.contact-map {
+  width: 100%;
+  height: 450px;
+  border: none;
+}
+
+.input-group-text {
+  border-radius: 50px 0 0 50px;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-right: none;
+}
+
+.contact-form .input-group .form-control {
+  border-radius: 0 50px 50px 0;
+  border-left: none;
+}
+
+.contact-form .input-group:focus-within .input-group-text,
+.contact-form .input-group:focus-within .form-control {
+  border-color: #003366;
+}

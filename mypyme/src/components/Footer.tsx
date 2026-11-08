@@ -50,7 +50,7 @@ export default function Footer() {
           <div className="col-md-3">
             <h5 className="footer-title">Información de Contacto</h5>
             <p className="mb-1 footer-text">Canal de WhatsApp</p>
-            <p className="fw-bold mb-3">+57 316 3628861</p>
+            <p className="fw-bold mb-3">+57 315 0000000</p>
             <p className="mb-1 footer-text">Correo Electrónico</p>
             <p className="fw-bold mb-3">reserva@aescondida.com</p>
           </div>

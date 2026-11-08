@@ -47,7 +47,6 @@ export default function Planes() {
 
   return (
     <>
-      {/* HERO SECTION */}
       <section className="cabanas-hero">
         <div className="container position-relative z-1 text-center text-md-start">
           <h1 className="display-4 fw-bold mb-3">
@@ -73,9 +72,7 @@ export default function Planes() {
         </div>
       </section>
 
-      {/* LISTADO DE PLANES */}
       <section className="container py-5">
-        {/* PLAN 1 */}
         <div className="row align-items-center mb-5 pb-4">
           <div className="col-md-6 mb-4 mb-md-0 position-relative">
             <img
@@ -107,7 +104,6 @@ export default function Planes() {
           </div>
         </div>
 
-        {/* PLAN 2 */}
         <div className="row align-items-center mb-5 pb-4 flex-md-row-reverse">
           <div className="col-md-6 mb-4 mb-md-0 position-relative">
             <img
@@ -139,7 +135,6 @@ export default function Planes() {
         </div>
       </section>
 
-      {/* SECCIÓN QUÉ INCLUYE (ESTILO ICONOS) */}
       <section className="py-5 bg-white text-center">
         <div className="container">
           <h2 className="fw-bold mb-5 planes-icons-title">
@@ -160,9 +155,7 @@ export default function Planes() {
         </div>
       </section>
 
-      {/* NUEVA SECCIÓN: BANNER CON IMAGEN Y ONDA */}
       <section className="planes-cta-section">
-        {/* La onda superior que viene del blanco hacia el azul */}
         <div className="planes-wave-top">
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path
@@ -172,10 +165,8 @@ export default function Planes() {
           </svg>
         </div>
 
-        {/* Capa azul oscura para que el texto resalte */}
         <div className="planes-cta-overlay"></div>
 
-        {/* Texto del banner */}
         <div className="container planes-cta-content">
           <h2 className="planes-cta-title">
             Un día es suficiente para desconectarte de la rutina y reconectarte

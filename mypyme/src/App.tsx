@@ -12,17 +12,24 @@ import Ventas from "./pages/admin/Ventas";
 import AuthProvider from "./auth/AuthProvider";
 import Cabanas from "./pages/public/Cabanas";
 import Planes from "./pages/public/Planes";
+import Eventos from "./pages/public/Eventos.tsx";
+import Contacto from "./pages/public/Contacto.tsx";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cabanas-frente-al-mar" element={<Cabanas />} />
             <Route path="/planes-y-experiencias" element={<Planes />} />
+            <Route path="/eventos-y-celebraciones" element={<Eventos />} />
+            <Route path="/contacto" element={<Contacto />} />
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>
@@ -68,4 +75,12 @@ export default function App() {
       </BrowserRouter>
     </AuthProvider>
   );
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
 }

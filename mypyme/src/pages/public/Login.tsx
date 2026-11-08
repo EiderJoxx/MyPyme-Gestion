@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
 import { RUTA_INICIAL } from "../../auth/permisos";
+import "../../css/Login.css";
 
 export default function Login() {
   const { usuario, usuarios, iniciarSesion, configurarAdministrador } =
@@ -15,7 +16,13 @@ export default function Login() {
 
   const primeraVez = usuarios.length === 0;
 
-  // Si ya hay sesión (o se acaba de iniciar), va directo a su pantalla
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
+
   if (usuario) return <Navigate to={RUTA_INICIAL[usuario.rol]} replace />;
 
   async function alEnviar(e: React.FormEvent) {
@@ -33,17 +40,17 @@ export default function Login() {
   }
 
   return (
-    <div className="container py-5" style={{ maxWidth: 440 }}>
-      <div className="card shadow-sm">
+    <div className="login-wrapper">
+      <div className="login-card">
         <form
           onSubmit={alEnviar}
-          className="card-body p-4 d-flex flex-column gap-3"
+          className="p-4 p-md-5 d-flex flex-column gap-3"
         >
-          <div>
-            <h1 className="h4 mb-1">
+          <div className="text-center mb-2">
+            <h1 className="login-title h3 mb-2">
               {primeraVez ? "Configura tu sistema" : "Iniciar sesión"}
             </h1>
-            <p className="text-secondary small mb-0">
+            <p className="login-subtitle mb-0">
               {primeraVez
                 ? "Todavía no hay usuarios. Crea la cuenta del administrador."
                 : "Ingresa con tu usuario y contraseña."}
@@ -51,71 +58,96 @@ export default function Login() {
           </div>
 
           {error && (
-            <div className="alert alert-danger py-2 mb-0" role="alert">
+            <div
+              className="alert alert-danger py-2 mb-0 text-center"
+              role="alert"
+            >
               {error}
             </div>
           )}
 
           {primeraVez && (
             <div>
-              <label htmlFor="login-nombre" className="form-label">
+              <label
+                htmlFor="login-nombre"
+                className="form-label fw-semibold text-secondary small"
+              >
                 Nombre completo
               </label>
               <input
                 id="login-nombre"
-                className="form-control"
+                className="form-control login-input"
                 value={nombre}
                 autoComplete="name"
                 onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ej. Juan Pérez"
               />
             </div>
           )}
 
           <div>
-            <label htmlFor="login-usuario" className="form-label">
+            <label
+              htmlFor="login-usuario"
+              className="form-label fw-semibold text-secondary small"
+            >
               Usuario
             </label>
             <input
               id="login-usuario"
-              className="form-control"
+              className="form-control login-input"
               value={nombreUsuario}
               autoComplete="username"
               onChange={(e) => setNombreUsuario(e.target.value)}
+              placeholder="Tu nombre de usuario"
             />
           </div>
 
           <div>
-            <label htmlFor="login-clave" className="form-label">
+            <label
+              htmlFor="login-clave"
+              className="form-label fw-semibold text-secondary small"
+            >
               Contraseña
             </label>
             <input
               id="login-clave"
               type="password"
-              className="form-control"
+              className="form-control login-input"
               value={clave}
               autoComplete={primeraVez ? "new-password" : "current-password"}
               onChange={(e) => setClave(e.target.value)}
+              placeholder="••••••••"
             />
           </div>
 
           {primeraVez && (
             <div>
-              <label htmlFor="login-confirmar" className="form-label">
+              <label
+                htmlFor="login-confirmar"
+                className="form-label fw-semibold text-secondary small"
+              >
                 Confirmar contraseña
               </label>
               <input
                 id="login-confirmar"
                 type="password"
-                className="form-control"
+                className="form-control login-input"
                 value={confirmar}
                 autoComplete="new-password"
                 onChange={(e) => setConfirmar(e.target.value)}
+                placeholder="••••••••"
               />
-              <small className="text-secondary">Mínimo 8 caracteres.</small>
+              <small className="text-muted d-block mt-1">
+                Mínimo 8 caracteres.
+              </small>
             </div>
           )}
 
-          <button type="submit" className="btn btn-primary" disabled={enviando}>
+          <button
+            type="submit"
+            className="btn btn-login w-100 mt-3"
+            disabled={enviando}
+          >
             {enviando
               ? "Verificando..."
               : primeraVez
@@ -124,102 +156,20 @@ export default function Login() {
           </button>
         </form>
       </div>
+
+      {/* Ola decorativa */}
+      <div className="login-wave-container">
+        <svg
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+          className="login-wave-svg"
+        >
+          <path
+            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,123.24,192.73,109.34,237.42,99.1,280.35,82.32,321.39,56.44Z"
+            fill="#f8f9fa"
+          ></path>
+        </svg>
+      </div>
     </div>
   );
 }
-
-/* import React, { useState } from "react";
-import Carrusel from "../../components/Carrusel";
-import "../../css/Login.css";
-import RegistrerModal from "../../components/auth/RegisterModal";
-
-export const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Inicio de sesión con:", { email, password });
-    // Logica Autenticacion
-  };
-
-  return (
-    <div className="login-container">
-      <div className="login-left">
-        <div className="brand-header">
-          <div className="logo-badge">MP</div>
-          <h1 className="brand-title">MyPyme</h1>
-        </div>
-
-        <h2 className="hero-heading">
-          Organiza, controla y{" "}
-          <span className="highlight-text">haz crecer</span> tu negocio.
-        </h2>
-        <div className="carousel-wrapper">
-          <Carrusel />
-        </div>
-      </div>
-      <div className="login-right">
-        <div className="login-card">
-          <h3 className="form-title">Iniciar sesión</h3>
-          <p className="form-subtitle">
-            Ingresa tus credenciales para acceder al sistema
-          </p>
-
-          <form onSubmit={handleSubmit} className="login-form">
-            <div className="input-group">
-              <label htmlFor="email">Correo electrónico o usuario</label>
-              <input
-                id="email"
-                type="text"
-                placeholder="Ingresa tu correo electrónico o usuario"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="password">Contraseña</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="........."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <button type="submit" className="btn-primary">
-              Iniciar sesión
-            </button>
-
-            <a href="#olvidaste" className="forgot-link">
-              ¿Olvidaste tu contraseña?
-            </a>
-
-            <div className="divider"></div>
-
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => setIsRegisterOpen(true)}
-            >
-              Crear cuenta
-            </button>
-          </form>
-        </div>
-      </div>
-      <RegistrerModal
-        isOpen={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
-      />
-    </div>
-  );
-};
-
-export default Login;
- */
