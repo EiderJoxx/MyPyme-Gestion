@@ -1,0 +1,608 @@
+<svg version="1.1" baseProfile="full" width="4453.0" height="532.0" viewBox="0 0 4453 532" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+<desc >#.interface: fill=lightblue
+#.enumeration: fill=lightgreen
+#.type: fill=lightgray
+
+[&lt;interface&gt;DatosUsuario|+nombre: string;+usuario: string;+rol: Rol;+clave: string|]
+[&lt;interface&gt;AuthValor|+usuario: Usuario;+usuarios: Usuario\[\];+iniciarSesion: (usuario: string, clave: string) =&gt; Promise&lt;ResultadoLogin&gt;;+configurarAdministrador: (datos: Omit&lt;DatosUsuario, &quot;rol&quot;&gt;) =&gt; Promise&lt;ResultadoLogin&gt;;+cerrarSesion: () =&gt; void;+crearUsuario: (datos: DatosUsuario) =&gt; Promise&lt;string&gt;;+actualizarUsuario: (id: number, cambios: { nombre: string; rol: Rol; activo: boolean; }, nuevaClave?: string) =&gt; Promise&lt;string&gt;;+eliminarUsuario: (id: number) =&gt; string|]
+[AuthValor]  -  [Usuario]
+[AuthValor]  - 0..* [Usuario]
+[&lt;interface&gt;FotoGaleria|+src: string;+alt: string;+titulo?: string;+subtitulo?: string|]
+[&lt;interface&gt;ItemViejo|+id: number;+nombre: string;+categoria?: string;+precio: number;+descripcion: string;+foto: string|]
+[&lt;interface&gt;Usuario|+id: number;+nombre: string;+usuario: string;+rol: Rol;+activo: boolean;+salt: string;+hash: string;+creado: string|]
+[&lt;interface&gt;DatosFormularioUsuario|+nombre: string;+usuario: string;+rol: Rol;+activo: boolean;+clave: string|]
+[&lt;interface&gt;Habitacion|+id: number;+numero: string;+tipo: string;+capacidad: number;+precioNoche: number;+estado: EstadoHabitacion;+imagen?: string;+descripcion?: string;+checkIn?: string;+checkOut?: string|]
+[&lt;interface&gt;ItemMenu|+id: number;+nombre: string;+area: AreaMenu;+categoria: string;+precio: number;+descripcion: string;+foto: string;+disponible: boolean|]
+[&lt;interface&gt;Bebida|+id: number;+nombre: string;+precio: number;+descripcion: string;+foto: string|]
+[&lt;interface&gt;ItemOrden|+itemId: number;+nombre: string;+area: AreaMenu;+precio: number;+cantidad: number|]
+[&lt;interface&gt;Orden|+id: number;+mesa: number;+fecha: string;+items: ItemOrden\[\];+nota: string;+estado: EstadoOrden;+metodoPago?: MetodoPago;+vendedorId?: number;+vendedor?: string|]
+[&lt;interface&gt;Reserva|+id: number;+cliente: string;+documento: string;+telefono: string;+habitacionId: number;+personas: number;+checkIn: string;+checkOut: string;+estado: EstadoReserva;+precioNoche: number;+anticipo: number;+notas: string|]
+[&lt;interface&gt;Insumo|+id: number;+nombre: string;+categoria: string;+unidad: string;+stock: number;+stockMinimo: number;+costoUnitario: number;+itemMenuId?: number;+consumoPorVenta: number|]
+[&lt;interface&gt;MovimientoInventario|+id: number;+insumoId: number;+nombreInsumo: string;+tipo: TipoMovimiento;+cantidad: number;+fecha: string;+detalle: string|]
+[&lt;interface&gt;DatosMovimiento|+cantidad: number;+costoTotal: number;+proveedor: string;+detalle: string|]
+[&lt;interface&gt;Gasto|+id: number;+fecha: string;+categoria: string;+descripcion: string;+proveedor: string;+monto: number|]
+[Orden]  - 0..* [ItemOrden]
+[&lt;interface&gt;Movimiento|+fecha: string;+tipo: &quot;Ingreso&quot; \| &quot;Gasto&quot;;+concepto: string;+monto: number|]
+[&lt;interface&gt;DatosReserva|+negocio: string;+habitacion: string;+entrada: string;+salida: string;+noches: number;+personas: number;+total: number;+nombre: string|]
+[&lt;type&gt;RangoOcupado|+entrada: string;+salida: string|]</desc>
+<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="normal" font-style="normal">
+<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+<g stroke="transparent" fill="transparent">
+<rect x="0.0" y="0.0" height="532.0" width="4453.0" stroke="none"></rect>
+</g>
+<g transform="translate(8, 8)" fill="#33322E">
+<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+<path d="M530.9 242.0 L527 270 L530.5398230088496 290 L530.5 290.0 " fill="none"></path>
+<text x="585.5" y="366.0" stroke="none">0..*</text>
+<path d="M914.0 182.7 L1470 270 L620.5 374.00162513542796 L620.5 374.0 " fill="none"></path>
+<text x="2398.0" y="306.5" stroke="none">0..*</text>
+<path d="M2433.0 226.0 L2433 270 L2433 314.5 L2433.0 314.5 " fill="none"></path>
+<g data-name="DatosUsuario">
+<g fill="lightblue" stroke="#33322E" data-name="DatosUsuario">
+<rect x="0.0" y="64.5" height="121.0" width="140.0" data-name="DatosUsuario"></rect>
+<path d="M0.0 96.5 L140.0 96.5" fill="none" data-name="DatosUsuario"></path>
+<path d="M0.0 177.5 L140.0 177.5" fill="none" data-name="DatosUsuario"></path>
+</g>
+<g transform="translate(0, 64.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosUsuario" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="DatosUsuario" data-compartment="0">
+<a id="src\auth\contexto.ts.DatosUsuario" xlink:href="src\auth\contexto.ts"><text x="62.0" y="14.1" stroke="none" text-anchor="middle" data-name="DatosUsuario" data-compartment="0">DatosUsuario</text></a>
+
+</g>
+</g>
+<g transform="translate(0, 96.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosUsuario" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="DatosUsuario" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="DatosUsuario" data-compartment="1">+nombre: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="DatosUsuario" data-compartment="1">+usuario: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="DatosUsuario" data-compartment="1">+rol: Rol</text>
+<text x="0.0" y="62.7" stroke="none" data-name="DatosUsuario" data-compartment="1">+clave: string</text>
+
+</g>
+</g>
+<g transform="translate(0, 177.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosUsuario" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="DatosUsuario" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="AuthValor">
+<g fill="lightblue" stroke="#33322E" data-name="AuthValor">
+<rect x="180.0" y="8.0" height="234.0" width="734.0" data-name="AuthValor"></rect>
+<path d="M180.0 40.0 L914.0 40.0" fill="none" data-name="AuthValor"></path>
+<path d="M180.0 234.0 L914.0 234.0" fill="none" data-name="AuthValor"></path>
+</g>
+<g transform="translate(180, 8)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AuthValor" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="AuthValor" data-compartment="0">
+<a id="src\auth\contexto.ts.AuthValor" xlink:href="src\auth\contexto.ts"><text x="359.0" y="14.1" stroke="none" text-anchor="middle" data-name="AuthValor" data-compartment="0">AuthValor</text></a>
+
+</g>
+</g>
+<g transform="translate(180, 40)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AuthValor" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="AuthValor" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="AuthValor" data-compartment="1">+usuario: Usuario</text>
+<text x="0.0" y="30.3" stroke="none" data-name="AuthValor" data-compartment="1">+usuarios: Usuario[]</text>
+<text x="0.0" y="46.5" stroke="none" data-name="AuthValor" data-compartment="1">+iniciarSesion: (usuario: string, clave: string) =&gt; Promise&lt;ResultadoLogin&gt;</text>
+<text x="0.0" y="62.7" stroke="none" data-name="AuthValor" data-compartment="1">+configurarAdministrador: (datos: Omit&lt;DatosUsuario, &quot;rol&quot;&gt;) =&gt; Promise&lt;ResultadoLogin&gt;</text>
+<text x="0.0" y="78.9" stroke="none" data-name="AuthValor" data-compartment="1">+cerrarSesion: () =&gt; void</text>
+<text x="0.0" y="95.1" stroke="none" data-name="AuthValor" data-compartment="1">+crearUsuario: (datos: DatosUsuario) =&gt; Promise&lt;string&gt;</text>
+<text x="0.0" y="111.3" stroke="none" data-name="AuthValor" data-compartment="1">+actualizarUsuario: (id: number, cambios: { nombre: string</text>
+<text x="0.0" y="127.5" stroke="none" data-name="AuthValor" data-compartment="1">rol: Rol</text>
+<text x="0.0" y="143.7" stroke="none" data-name="AuthValor" data-compartment="1">activo: boolean</text>
+<text x="0.0" y="159.9" stroke="none" data-name="AuthValor" data-compartment="1">}, nuevaClave?: string) =&gt; Promise&lt;string&gt;</text>
+<text x="0.0" y="176.1" stroke="none" data-name="AuthValor" data-compartment="1">+eliminarUsuario: (id: number) =&gt; string</text>
+
+</g>
+</g>
+<g transform="translate(180, 234)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AuthValor" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="AuthValor" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="Usuario">
+<g fill="lightblue" stroke="#33322E" data-name="Usuario">
+<rect x="473.5" y="290.0" height="186.0" width="147.0" data-name="Usuario"></rect>
+<path d="M473.5 322.0 L620.5 322.0" fill="none" data-name="Usuario"></path>
+<path d="M473.5 468.0 L620.5 468.0" fill="none" data-name="Usuario"></path>
+</g>
+<g transform="translate(473.5, 290)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Usuario" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Usuario" data-compartment="0">
+<a id="src\types\index.ts.Usuario" xlink:href="src\types\index.ts"><text x="65.5" y="14.1" stroke="none" text-anchor="middle" data-name="Usuario" data-compartment="0">Usuario</text></a>
+
+</g>
+</g>
+<g transform="translate(473.5, 322)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Usuario" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Usuario" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Usuario" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Usuario" data-compartment="1">+nombre: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Usuario" data-compartment="1">+usuario: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Usuario" data-compartment="1">+rol: Rol</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Usuario" data-compartment="1">+activo: boolean</text>
+<text x="0.0" y="95.1" stroke="none" data-name="Usuario" data-compartment="1">+salt: string</text>
+<text x="0.0" y="111.3" stroke="none" data-name="Usuario" data-compartment="1">+hash: string</text>
+<text x="0.0" y="127.5" stroke="none" data-name="Usuario" data-compartment="1">+creado: string</text>
+
+</g>
+</g>
+<g transform="translate(473.5, 468)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Usuario" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Usuario" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="FotoGaleria">
+<g fill="lightblue" stroke="#33322E" data-name="FotoGaleria">
+<rect x="954.0" y="64.5" height="121.0" width="157.0" data-name="FotoGaleria"></rect>
+<path d="M954.0 96.5 L1111.0 96.5" fill="none" data-name="FotoGaleria"></path>
+<path d="M954.0 177.5 L1111.0 177.5" fill="none" data-name="FotoGaleria"></path>
+</g>
+<g transform="translate(954, 64.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="FotoGaleria" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="FotoGaleria" data-compartment="0">
+<a id="src\data\galeria.ts.FotoGaleria" xlink:href="src\data\galeria.ts"><text x="70.5" y="14.1" stroke="none" text-anchor="middle" data-name="FotoGaleria" data-compartment="0">FotoGaleria</text></a>
+
+</g>
+</g>
+<g transform="translate(954, 96.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="FotoGaleria" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="FotoGaleria" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="FotoGaleria" data-compartment="1">+src: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="FotoGaleria" data-compartment="1">+alt: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="FotoGaleria" data-compartment="1">+titulo?: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="FotoGaleria" data-compartment="1">+subtitulo?: string</text>
+
+</g>
+</g>
+<g transform="translate(954, 177.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="FotoGaleria" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="FotoGaleria" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="ItemViejo">
+<g fill="lightblue" stroke="#33322E" data-name="ItemViejo">
+<rect x="1151.0" y="48.5" height="153.0" width="171.0" data-name="ItemViejo"></rect>
+<path d="M1151.0 80.5 L1322.0 80.5" fill="none" data-name="ItemViejo"></path>
+<path d="M1151.0 193.5 L1322.0 193.5" fill="none" data-name="ItemViejo"></path>
+</g>
+<g transform="translate(1151, 48.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemViejo" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="ItemViejo" data-compartment="0">
+<a id="src\hooks\useRestauranteBar.ts.ItemViejo" xlink:href="src\hooks\useRestauranteBar.ts"><text x="77.5" y="14.1" stroke="none" text-anchor="middle" data-name="ItemViejo" data-compartment="0">ItemViejo</text></a>
+
+</g>
+</g>
+<g transform="translate(1151, 80.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemViejo" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="ItemViejo" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="ItemViejo" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="ItemViejo" data-compartment="1">+nombre: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="ItemViejo" data-compartment="1">+categoria?: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="ItemViejo" data-compartment="1">+precio: number</text>
+<text x="0.0" y="78.9" stroke="none" data-name="ItemViejo" data-compartment="1">+descripcion: string</text>
+<text x="0.0" y="95.1" stroke="none" data-name="ItemViejo" data-compartment="1">+foto: string</text>
+
+</g>
+</g>
+<g transform="translate(1151, 193.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemViejo" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="ItemViejo" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="DatosFormularioUsuario">
+<g fill="lightblue" stroke="#33322E" data-name="DatosFormularioUsuario">
+<rect x="1362.0" y="56.5" height="137.0" width="207.0" data-name="DatosFormularioUsuario"></rect>
+<path d="M1362.0 88.5 L1569.0 88.5" fill="none" data-name="DatosFormularioUsuario"></path>
+<path d="M1362.0 185.5 L1569.0 185.5" fill="none" data-name="DatosFormularioUsuario"></path>
+</g>
+<g transform="translate(1362, 56.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosFormularioUsuario" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="DatosFormularioUsuario" data-compartment="0">
+<a id="src\types\index.ts.DatosFormularioUsuario" xlink:href="src\types\index.ts"><text x="95.5" y="14.1" stroke="none" text-anchor="middle" data-name="DatosFormularioUsuario" data-compartment="0">DatosFormularioUsuario</text></a>
+
+</g>
+</g>
+<g transform="translate(1362, 88.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosFormularioUsuario" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="DatosFormularioUsuario" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="DatosFormularioUsuario" data-compartment="1">+nombre: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="DatosFormularioUsuario" data-compartment="1">+usuario: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="DatosFormularioUsuario" data-compartment="1">+rol: Rol</text>
+<text x="0.0" y="62.7" stroke="none" data-name="DatosFormularioUsuario" data-compartment="1">+activo: boolean</text>
+<text x="0.0" y="78.9" stroke="none" data-name="DatosFormularioUsuario" data-compartment="1">+clave: string</text>
+
+</g>
+</g>
+<g transform="translate(1362, 185.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosFormularioUsuario" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="DatosFormularioUsuario" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="Habitacion">
+<g fill="lightblue" stroke="#33322E" data-name="Habitacion">
+<rect x="1609.0" y="16.0" height="218.0" width="229.0" data-name="Habitacion"></rect>
+<path d="M1609.0 48.0 L1838.0 48.0" fill="none" data-name="Habitacion"></path>
+<path d="M1609.0 226.0 L1838.0 226.0" fill="none" data-name="Habitacion"></path>
+</g>
+<g transform="translate(1609, 16)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Habitacion" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Habitacion" data-compartment="0">
+<a id="src\types\index.ts.Habitacion" xlink:href="src\types\index.ts"><text x="106.5" y="14.1" stroke="none" text-anchor="middle" data-name="Habitacion" data-compartment="0">Habitacion</text></a>
+
+</g>
+</g>
+<g transform="translate(1609, 48)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Habitacion" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Habitacion" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Habitacion" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Habitacion" data-compartment="1">+numero: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Habitacion" data-compartment="1">+tipo: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Habitacion" data-compartment="1">+capacidad: number</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Habitacion" data-compartment="1">+precioNoche: number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="Habitacion" data-compartment="1">+estado: EstadoHabitacion</text>
+<text x="0.0" y="111.3" stroke="none" data-name="Habitacion" data-compartment="1">+imagen?: string</text>
+<text x="0.0" y="127.5" stroke="none" data-name="Habitacion" data-compartment="1">+descripcion?: string</text>
+<text x="0.0" y="143.7" stroke="none" data-name="Habitacion" data-compartment="1">+checkIn?: string</text>
+<text x="0.0" y="159.9" stroke="none" data-name="Habitacion" data-compartment="1">+checkOut?: string</text>
+
+</g>
+</g>
+<g transform="translate(1609, 226)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Habitacion" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Habitacion" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="ItemMenu">
+<g fill="lightblue" stroke="#33322E" data-name="ItemMenu">
+<rect x="1878.0" y="32.0" height="186.0" width="181.0" data-name="ItemMenu"></rect>
+<path d="M1878.0 64.0 L2059.0 64.0" fill="none" data-name="ItemMenu"></path>
+<path d="M1878.0 210.0 L2059.0 210.0" fill="none" data-name="ItemMenu"></path>
+</g>
+<g transform="translate(1878, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemMenu" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="ItemMenu" data-compartment="0">
+<a id="src\types\index.ts.ItemMenu" xlink:href="src\types\index.ts"><text x="82.5" y="14.1" stroke="none" text-anchor="middle" data-name="ItemMenu" data-compartment="0">ItemMenu</text></a>
+
+</g>
+</g>
+<g transform="translate(1878, 64)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemMenu" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="ItemMenu" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="ItemMenu" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="ItemMenu" data-compartment="1">+nombre: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="ItemMenu" data-compartment="1">+area: AreaMenu</text>
+<text x="0.0" y="62.7" stroke="none" data-name="ItemMenu" data-compartment="1">+categoria: string</text>
+<text x="0.0" y="78.9" stroke="none" data-name="ItemMenu" data-compartment="1">+precio: number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="ItemMenu" data-compartment="1">+descripcion: string</text>
+<text x="0.0" y="111.3" stroke="none" data-name="ItemMenu" data-compartment="1">+foto: string</text>
+<text x="0.0" y="127.5" stroke="none" data-name="ItemMenu" data-compartment="1">+disponible: boolean</text>
+
+</g>
+</g>
+<g transform="translate(1878, 210)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemMenu" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="ItemMenu" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="Bebida">
+<g fill="lightblue" stroke="#33322E" data-name="Bebida">
+<rect x="2099.0" y="56.5" height="137.0" width="171.0" data-name="Bebida"></rect>
+<path d="M2099.0 88.5 L2270.0 88.5" fill="none" data-name="Bebida"></path>
+<path d="M2099.0 185.5 L2270.0 185.5" fill="none" data-name="Bebida"></path>
+</g>
+<g transform="translate(2099, 56.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Bebida" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Bebida" data-compartment="0">
+<a id="src\types\index.ts.Bebida" xlink:href="src\types\index.ts"><text x="77.5" y="14.1" stroke="none" text-anchor="middle" data-name="Bebida" data-compartment="0">Bebida</text></a>
+
+</g>
+</g>
+<g transform="translate(2099, 88.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Bebida" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Bebida" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Bebida" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Bebida" data-compartment="1">+nombre: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Bebida" data-compartment="1">+precio: number</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Bebida" data-compartment="1">+descripcion: string</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Bebida" data-compartment="1">+foto: string</text>
+
+</g>
+</g>
+<g transform="translate(2099, 185.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Bebida" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Bebida" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="ItemOrden">
+<g fill="lightblue" stroke="#33322E" data-name="ItemOrden">
+<rect x="2351.0" y="314.5" height="137.0" width="164.0" data-name="ItemOrden"></rect>
+<path d="M2351.0 346.5 L2515.0 346.5" fill="none" data-name="ItemOrden"></path>
+<path d="M2351.0 443.5 L2515.0 443.5" fill="none" data-name="ItemOrden"></path>
+</g>
+<g transform="translate(2351, 314.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemOrden" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="ItemOrden" data-compartment="0">
+<a id="src\types\index.ts.ItemOrden" xlink:href="src\types\index.ts"><text x="74.0" y="14.1" stroke="none" text-anchor="middle" data-name="ItemOrden" data-compartment="0">ItemOrden</text></a>
+
+</g>
+</g>
+<g transform="translate(2351, 346.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemOrden" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="ItemOrden" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="ItemOrden" data-compartment="1">+itemId: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="ItemOrden" data-compartment="1">+nombre: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="ItemOrden" data-compartment="1">+area: AreaMenu</text>
+<text x="0.0" y="62.7" stroke="none" data-name="ItemOrden" data-compartment="1">+precio: number</text>
+<text x="0.0" y="78.9" stroke="none" data-name="ItemOrden" data-compartment="1">+cantidad: number</text>
+
+</g>
+</g>
+<g transform="translate(2351, 443.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ItemOrden" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="ItemOrden" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="Orden">
+<g fill="lightblue" stroke="#33322E" data-name="Orden">
+<rect x="2310.0" y="24.0" height="202.0" width="246.0" data-name="Orden"></rect>
+<path d="M2310.0 56.0 L2556.0 56.0" fill="none" data-name="Orden"></path>
+<path d="M2310.0 218.0 L2556.0 218.0" fill="none" data-name="Orden"></path>
+</g>
+<g transform="translate(2310, 24)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Orden" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Orden" data-compartment="0">
+<a id="src\types\index.ts.Orden" xlink:href="src\types\index.ts"><text x="115.0" y="14.1" stroke="none" text-anchor="middle" data-name="Orden" data-compartment="0">Orden</text></a>
+
+</g>
+</g>
+<g transform="translate(2310, 56)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Orden" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Orden" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Orden" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Orden" data-compartment="1">+mesa: number</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Orden" data-compartment="1">+fecha: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Orden" data-compartment="1">+items: ItemOrden[]</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Orden" data-compartment="1">+nota: string</text>
+<text x="0.0" y="95.1" stroke="none" data-name="Orden" data-compartment="1">+estado: EstadoOrden</text>
+<text x="0.0" y="111.3" stroke="none" data-name="Orden" data-compartment="1">+metodoPago?: MetodoPago</text>
+<text x="0.0" y="127.5" stroke="none" data-name="Orden" data-compartment="1">+vendedorId?: number</text>
+<text x="0.0" y="143.7" stroke="none" data-name="Orden" data-compartment="1">+vendedor?: string</text>
+
+</g>
+</g>
+<g transform="translate(2310, 218)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Orden" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Orden" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="Reserva">
+<g fill="lightblue" stroke="#33322E" data-name="Reserva">
+<rect x="2596.0" y="0.0" height="250.0" width="211.0" data-name="Reserva"></rect>
+<path d="M2596.0 32.0 L2807.0 32.0" fill="none" data-name="Reserva"></path>
+<path d="M2596.0 242.0 L2807.0 242.0" fill="none" data-name="Reserva"></path>
+</g>
+<g transform="translate(2596, 0)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Reserva" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Reserva" data-compartment="0">
+<a id="src\types\index.ts.Reserva" xlink:href="src\types\index.ts"><text x="97.5" y="14.1" stroke="none" text-anchor="middle" data-name="Reserva" data-compartment="0">Reserva</text></a>
+
+</g>
+</g>
+<g transform="translate(2596, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Reserva" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Reserva" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Reserva" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Reserva" data-compartment="1">+cliente: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Reserva" data-compartment="1">+documento: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Reserva" data-compartment="1">+telefono: string</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Reserva" data-compartment="1">+habitacionId: number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="Reserva" data-compartment="1">+personas: number</text>
+<text x="0.0" y="111.3" stroke="none" data-name="Reserva" data-compartment="1">+checkIn: string</text>
+<text x="0.0" y="127.5" stroke="none" data-name="Reserva" data-compartment="1">+checkOut: string</text>
+<text x="0.0" y="143.7" stroke="none" data-name="Reserva" data-compartment="1">+estado: EstadoReserva</text>
+<text x="0.0" y="159.9" stroke="none" data-name="Reserva" data-compartment="1">+precioNoche: number</text>
+<text x="0.0" y="176.1" stroke="none" data-name="Reserva" data-compartment="1">+anticipo: number</text>
+<text x="0.0" y="192.3" stroke="none" data-name="Reserva" data-compartment="1">+notas: string</text>
+
+</g>
+</g>
+<g transform="translate(2596, 242)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Reserva" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Reserva" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="Insumo">
+<g fill="lightblue" stroke="#33322E" data-name="Insumo">
+<rect x="2847.0" y="24.0" height="202.0" width="241.0" data-name="Insumo"></rect>
+<path d="M2847.0 56.0 L3088.0 56.0" fill="none" data-name="Insumo"></path>
+<path d="M2847.0 218.0 L3088.0 218.0" fill="none" data-name="Insumo"></path>
+</g>
+<g transform="translate(2847, 24)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Insumo" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Insumo" data-compartment="0">
+<a id="src\types\index.ts.Insumo" xlink:href="src\types\index.ts"><text x="112.5" y="14.1" stroke="none" text-anchor="middle" data-name="Insumo" data-compartment="0">Insumo</text></a>
+
+</g>
+</g>
+<g transform="translate(2847, 56)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Insumo" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Insumo" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Insumo" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Insumo" data-compartment="1">+nombre: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Insumo" data-compartment="1">+categoria: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Insumo" data-compartment="1">+unidad: string</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Insumo" data-compartment="1">+stock: number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="Insumo" data-compartment="1">+stockMinimo: number</text>
+<text x="0.0" y="111.3" stroke="none" data-name="Insumo" data-compartment="1">+costoUnitario: number</text>
+<text x="0.0" y="127.5" stroke="none" data-name="Insumo" data-compartment="1">+itemMenuId?: number</text>
+<text x="0.0" y="143.7" stroke="none" data-name="Insumo" data-compartment="1">+consumoPorVenta: number</text>
+
+</g>
+</g>
+<g transform="translate(2847, 218)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Insumo" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Insumo" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="MovimientoInventario">
+<g fill="lightblue" stroke="#33322E" data-name="MovimientoInventario">
+<rect x="3128.0" y="40.5" height="169.0" width="198.0" data-name="MovimientoInventario"></rect>
+<path d="M3128.0 72.5 L3326.0 72.5" fill="none" data-name="MovimientoInventario"></path>
+<path d="M3128.0 201.5 L3326.0 201.5" fill="none" data-name="MovimientoInventario"></path>
+</g>
+<g transform="translate(3128, 40.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="MovimientoInventario" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="MovimientoInventario" data-compartment="0">
+<a id="src\types\index.ts.MovimientoInventario" xlink:href="src\types\index.ts"><text x="91.0" y="14.1" stroke="none" text-anchor="middle" data-name="MovimientoInventario" data-compartment="0">MovimientoInventario</text></a>
+
+</g>
+</g>
+<g transform="translate(3128, 72.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="MovimientoInventario" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="MovimientoInventario" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="MovimientoInventario" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="MovimientoInventario" data-compartment="1">+insumoId: number</text>
+<text x="0.0" y="46.5" stroke="none" data-name="MovimientoInventario" data-compartment="1">+nombreInsumo: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="MovimientoInventario" data-compartment="1">+tipo: TipoMovimiento</text>
+<text x="0.0" y="78.9" stroke="none" data-name="MovimientoInventario" data-compartment="1">+cantidad: number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="MovimientoInventario" data-compartment="1">+fecha: string</text>
+<text x="0.0" y="111.3" stroke="none" data-name="MovimientoInventario" data-compartment="1">+detalle: string</text>
+
+</g>
+</g>
+<g transform="translate(3128, 201.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="MovimientoInventario" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="MovimientoInventario" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="DatosMovimiento">
+<g fill="lightblue" stroke="#33322E" data-name="DatosMovimiento">
+<rect x="3366.0" y="64.5" height="121.0" width="178.0" data-name="DatosMovimiento"></rect>
+<path d="M3366.0 96.5 L3544.0 96.5" fill="none" data-name="DatosMovimiento"></path>
+<path d="M3366.0 177.5 L3544.0 177.5" fill="none" data-name="DatosMovimiento"></path>
+</g>
+<g transform="translate(3366, 64.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosMovimiento" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="DatosMovimiento" data-compartment="0">
+<a id="src\types\index.ts.DatosMovimiento" xlink:href="src\types\index.ts"><text x="81.0" y="14.1" stroke="none" text-anchor="middle" data-name="DatosMovimiento" data-compartment="0">DatosMovimiento</text></a>
+
+</g>
+</g>
+<g transform="translate(3366, 96.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosMovimiento" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="DatosMovimiento" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="DatosMovimiento" data-compartment="1">+cantidad: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="DatosMovimiento" data-compartment="1">+costoTotal: number</text>
+<text x="0.0" y="46.5" stroke="none" data-name="DatosMovimiento" data-compartment="1">+proveedor: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="DatosMovimiento" data-compartment="1">+detalle: string</text>
+
+</g>
+</g>
+<g transform="translate(3366, 177.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosMovimiento" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="DatosMovimiento" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="Gasto">
+<g fill="lightblue" stroke="#33322E" data-name="Gasto">
+<rect x="3584.0" y="48.5" height="153.0" width="171.0" data-name="Gasto"></rect>
+<path d="M3584.0 80.5 L3755.0 80.5" fill="none" data-name="Gasto"></path>
+<path d="M3584.0 193.5 L3755.0 193.5" fill="none" data-name="Gasto"></path>
+</g>
+<g transform="translate(3584, 48.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Gasto" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Gasto" data-compartment="0">
+<a id="src\types\index.ts.Gasto" xlink:href="src\types\index.ts"><text x="77.5" y="14.1" stroke="none" text-anchor="middle" data-name="Gasto" data-compartment="0">Gasto</text></a>
+
+</g>
+</g>
+<g transform="translate(3584, 80.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Gasto" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Gasto" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Gasto" data-compartment="1">+id: number</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Gasto" data-compartment="1">+fecha: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Gasto" data-compartment="1">+categoria: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Gasto" data-compartment="1">+descripcion: string</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Gasto" data-compartment="1">+proveedor: string</text>
+<text x="0.0" y="95.1" stroke="none" data-name="Gasto" data-compartment="1">+monto: number</text>
+
+</g>
+</g>
+<g transform="translate(3584, 193.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Gasto" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Gasto" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="Movimiento">
+<g fill="lightblue" stroke="#33322E" data-name="Movimiento">
+<rect x="3795.0" y="64.5" height="121.0" width="211.0" data-name="Movimiento"></rect>
+<path d="M3795.0 96.5 L4006.0 96.5" fill="none" data-name="Movimiento"></path>
+<path d="M3795.0 177.5 L4006.0 177.5" fill="none" data-name="Movimiento"></path>
+</g>
+<g transform="translate(3795, 64.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Movimiento" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Movimiento" data-compartment="0">
+<a id="src\utils\finanzas.ts.Movimiento" xlink:href="src\utils\finanzas.ts"><text x="97.5" y="14.1" stroke="none" text-anchor="middle" data-name="Movimiento" data-compartment="0">Movimiento</text></a>
+
+</g>
+</g>
+<g transform="translate(3795, 96.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Movimiento" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Movimiento" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Movimiento" data-compartment="1">+fecha: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Movimiento" data-compartment="1">+tipo: &quot;Ingreso&quot; | &quot;Gasto&quot;</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Movimiento" data-compartment="1">+concepto: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Movimiento" data-compartment="1">+monto: number</text>
+
+</g>
+</g>
+<g transform="translate(3795, 177.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Movimiento" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Movimiento" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="DatosReserva">
+<g fill="lightblue" stroke="#33322E" data-name="DatosReserva">
+<rect x="4046.0" y="32.0" height="186.0" width="170.0" data-name="DatosReserva"></rect>
+<path d="M4046.0 64.0 L4216.0 64.0" fill="none" data-name="DatosReserva"></path>
+<path d="M4046.0 210.0 L4216.0 210.0" fill="none" data-name="DatosReserva"></path>
+</g>
+<g transform="translate(4046, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosReserva" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="DatosReserva" data-compartment="0">
+<a id="src\utils\whatsapp.ts.DatosReserva" xlink:href="src\utils\whatsapp.ts"><text x="77.0" y="14.1" stroke="none" text-anchor="middle" data-name="DatosReserva" data-compartment="0">DatosReserva</text></a>
+
+</g>
+</g>
+<g transform="translate(4046, 64)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosReserva" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="DatosReserva" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="DatosReserva" data-compartment="1">+negocio: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="DatosReserva" data-compartment="1">+habitacion: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="DatosReserva" data-compartment="1">+entrada: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="DatosReserva" data-compartment="1">+salida: string</text>
+<text x="0.0" y="78.9" stroke="none" data-name="DatosReserva" data-compartment="1">+noches: number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="DatosReserva" data-compartment="1">+personas: number</text>
+<text x="0.0" y="111.3" stroke="none" data-name="DatosReserva" data-compartment="1">+total: number</text>
+<text x="0.0" y="127.5" stroke="none" data-name="DatosReserva" data-compartment="1">+nombre: string</text>
+
+</g>
+</g>
+<g transform="translate(4046, 210)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DatosReserva" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="DatosReserva" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="RangoOcupado">
+<g fill="lightgray" stroke="#33322E" data-name="RangoOcupado">
+<rect x="4256.0" y="81.0" height="88.0" width="141.0" data-name="RangoOcupado"></rect>
+<path d="M4256.0 113.0 L4397.0 113.0" fill="none" data-name="RangoOcupado"></path>
+<path d="M4256.0 161.0 L4397.0 161.0" fill="none" data-name="RangoOcupado"></path>
+</g>
+<g transform="translate(4256, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RangoOcupado" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="RangoOcupado" data-compartment="0">
+<a id="src\utils\whatsapp.ts.RangoOcupado" xlink:href="src\utils\whatsapp.ts"><text x="62.5" y="14.1" stroke="none" text-anchor="middle" data-name="RangoOcupado" data-compartment="0">RangoOcupado</text></a>
+
+</g>
+</g>
+<g transform="translate(4256, 113)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RangoOcupado" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="RangoOcupado" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="RangoOcupado" data-compartment="1">+entrada: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="RangoOcupado" data-compartment="1">+salida: string</text>
+
+</g>
+</g>
+<g transform="translate(4256, 161)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RangoOcupado" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="RangoOcupado" data-compartment="2">
+
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

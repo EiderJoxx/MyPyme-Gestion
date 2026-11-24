@@ -5,8 +5,8 @@ import { RUTA_INICIAL } from "../../auth/permisos";
 import "../../css/Login.css";
 
 export default function Login() {
-  const { usuario, usuarios, iniciarSesion, configurarAdministrador } =
-    useAuth();
+  const { usuario, necesitaConfiguracion, iniciarSesion, configurarAdministrador } =
+  useAuth();
   const [nombre, setNombre] = useState("");
   const [nombreUsuario, setNombreUsuario] = useState("");
   const [clave, setClave] = useState("");
@@ -14,7 +14,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  const primeraVez = usuarios.length === 0;
+  const primeraVez = necesitaConfiguracion === true;
 
   useEffect(() => {
     window.scrollTo({
@@ -33,7 +33,7 @@ export default function Login() {
 
     setEnviando(true);
     const resultado = primeraVez
-      ? await configurarAdministrador({ nombre, usuario: nombreUsuario, clave })
+      ? await configurarAdministrador({ nombre, nombreUsuario, clave })
       : await iniciarSesion(nombreUsuario, clave);
     setEnviando(false);
     if (!resultado.ok) setError(resultado.error);

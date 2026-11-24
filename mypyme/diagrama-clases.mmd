@@ -1,0 +1,251 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 11
+skinparam linetype ortho
+
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #444444
+  HeaderBackgroundColor #E3F2FD
+}
+
+' ==========================================
+' ENTIDADES (Tablas de la Base de Datos)
+' ==========================================
+
+namespace Auth {
+    class Usuario {
+        +id: int
+        +nombre: string
+        +usuario: string
+        +rol: Rol
+        +activo: boolean
+        +salt: string
+        +hash: string
+        +creado: string
+    }
+}
+
+namespace Hospedaje {
+    class Habitacion {
+        +id: int
+        +numero: string
+        +tipo: string
+        +capacidad: int
+        +precioNoche: decimal
+        +estado: EstadoHabitacion
+        +imagen: string?
+        +descripcion: string?
+        +checkIn: string?
+        +checkOut: string?
+    }
+
+    class Reserva {
+        +id: int
+        +cliente: string
+        +documento: string
+        +telefono: string
+        +habitacionId: int
+        +personas: int
+        +checkIn: string
+        +checkOut: string
+        +estado: EstadoReserva
+        +precioNoche: decimal
+        +anticipo: decimal
+        +notas: string
+    }
+}
+
+namespace RestauranteBar {
+    class ItemMenu {
+        +id: int
+        +nombre: string
+        +area: AreaMenu
+        +categoria: string
+        +precio: decimal
+        +descripcion: string
+        +foto: string
+        +disponible: boolean
+    }
+
+    class Orden {
+        +id: int
+        +mesa: int
+        +fecha: string
+        +nota: string
+        +estado: EstadoOrden
+        +metodoPago: MetodoPago?
+        +vendedorId: int?
+    }
+
+    ' En TypeScript era ItemOrden[], en SQL es una tabla de detalle
+    class DetalleOrden {
+        +id: int
+        +ordenId: int
+        +itemMenuId: int
+        +cantidad: int
+        +precioUnitario: decimal
+        +area: AreaMenu
+    }
+}
+
+namespace Inventario {
+    class Insumo {
+        +id: int
+        +nombre: string
+        +categoria: string
+        +unidad: string
+        +stock: decimal
+        +stockMinimo: decimal
+        +costoUnitario: decimal
+        +itemMenuId: int?
+        +consumoPorVenta: decimal
+    }
+
+    class MovimientoInventario {
+        +id: int
+        +insumoId: int
+        +tipo: TipoMovimiento
+        +cantidad: decimal
+        +fecha: string
+        +detalle: string
+    }
+}
+
+namespace Finanzas {
+    class Gasto {
+        +id: int
+        +fecha: string
+        +categoria: string
+        +descripcion: string
+        +proveedor: string
+        +monto: decimal
+    }
+}
+
+' ==========================================
+' ENUMS (Tipos de datos)
+' ==========================================
+
+namespace Enums {
+    enum Rol {
+        Administrador
+        Vendedor
+    }
+    enum EstadoHabitacion {
+        Disponible
+        Ocupada
+        Limpieza
+        Mantenimiento
+    }
+    enum EstadoReserva {
+        Pendiente
+        Confirmada
+        CheckIn
+        CheckOut
+        Cancelada
+    }
+    enum AreaMenu {
+        Restaurante
+        Bar
+    }
+    enum EstadoOrden {
+        Abierta
+        Cerrada
+        Anulada
+    }
+    enum MetodoPago {
+        Efectivo
+        Tarjeta
+        Transferencia
+    }
+    enum TipoMovimiento {
+        Entrada
+        Salida
+        Ajuste
+    }
+}
+
+' ==========================================
+' SERVICIOS (Comportamiento de tus Hooks)
+' ==========================================
+
+namespace Services {
+    class HabitacionService {
+        +agregar(nueva: Habitacion)
+        +actualizar(id: int, datos: Habitacion)
+        +cambiarEstado(id: int, estado: EstadoHabitacion)
+        +eliminar(id: int)
+    }
+
+    class ReservaService {
+        +crear(datos: Reserva)
+        +actualizar(id: int, datos: Reserva)
+        +cambiarEstado(id: int, estado: EstadoReserva)
+        +abonar(id: int, monto: decimal)
+        +eliminar(id: int)
+    }
+
+    class RestauranteBarService {
+        +guardarItem(datos: ItemMenu, id?: int)
+        +eliminarItem(id: int)
+        +cambiarDisponible(id: int)
+        +guardarOrden(mesa: int, items: DetalleOrden[], nota: string, vendedor?: Usuario)
+        +cobrar(id: int, metodoPago: MetodoPago)
+        +anular(id: int)
+    }
+
+    class InventarioService {
+        +guardarInsumo(datos: Insumo, id?: int)
+        +eliminarInsumo(id: int)
+        +registrarMovimiento(id: int, tipo: TipoMovimiento, valor: decimal, detalle: string, costoUnitario?: decimal)
+        +descontarVenta(items: DetalleOrden[], referencia: string)
+    }
+
+    class GastoService {
+        +guardar(datos: Gasto, id?: int)
+        +eliminar(id: int)
+    }
+}
+
+' ==========================================
+' RELACIONES (Llaves Foráneas)
+' ==========================================
+
+' Hospedaje
+Habitacion "1" -- "0..*" Reserva : tiene / se reserva
+
+' Restaurante y Bar
+Orden "1" *-- "1..*" DetalleOrden : contiene
+ItemMenu "1" -- "0..*" DetalleOrden : es parte de
+Usuario "1" -- "0..*" Orden : atiende (vendedor)
+
+' Inventario
+Insumo "1" *-- "0..*" MovimientoInventario : registra movimientos
+ItemMenu "1" -- "0..*" Insumo : descuenta stock de (itemMenuId)
+
+' Relaciones con Enums (Para mapeo en C#)
+Habitacion --> EstadoHabitacion
+Reserva --> EstadoReserva
+Usuario --> Rol
+ItemMenu --> AreaMenu
+DetalleOrden --> AreaMenu
+Orden --> EstadoOrden
+Orden --> MetodoPago
+MovimientoInventario --> TipoMovimiento
+
+' ==========================================
+' RELACIONES DE SERVICIOS CON ENTIDADES
+' ==========================================
+HabitacionService ..> Habitacion : gestiona
+ReservaService ..> Reserva : gestiona
+RestauranteBarService ..> ItemMenu : gestiona
+RestauranteBarService ..> Orden : gestiona
+InventarioService ..> Insumo : gestiona
+InventarioService ..> MovimientoInventario : gestiona
+GastoService ..> Gasto : gestiona
+
+@enduml                

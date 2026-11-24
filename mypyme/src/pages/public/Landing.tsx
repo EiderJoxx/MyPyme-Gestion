@@ -1,28 +1,88 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Carrusel2 from "../../components/Carrusel2";
 import {
   mensajeReserva,
   enlaceWhatsApp,
-  nochesEntre,
   formatoCOP,
 } from "../../utils/whatsapp";
-import { useReservas } from "../../hooks/useReservas";
-import { habitaciones } from "../../data/datosPrueba";
-import type { EstadoReserva } from "../../types";
+import { habitacionesService } from "../../services/habitacionesService";
+import { reservasService } from "../../services/reservasService";
+import type { Habitacion, ReservaPublicaRespuesta } from "../../types";
 import "../../css/Landing.css";
 
-export default function Landing() {
-  const { crear } = useReservas();
+// Fecha local en formato "YYYY-MM-DD" (sin desfase por zona horaria)
+const aISO = (d: Date) =>
+  new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10);
+const hoyISO = () => aISO(new Date());
+const mananaISO = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return aISO(d);
+};
 
-  const [form, setForm] = useState({
-    nombre: "",
-    documento: "",
-    telefono: "",
-    entrada: "",
-    salida: "",
-    personas: 1,
-    habitacionId: habitaciones[0]?.id || 1,
-  });
+const formInicial = {
+  nombre: "",
+  documento: "",
+  telefono: "",
+  entrada: "",
+  salida: "",
+  personas: 1,
+  habitacionId: 0,
+  sitio: "", // honeypot
+};
+
+export default function Landing() {
+  const [form, setForm] = useState(formInicial);
+  const [habitacionesDisponibles, setHabitacionesDisponibles] = useState<
+    Habitacion[]
+  >([]);
+  const [cargandoHab, setCargandoHab] = useState(true);
+  const [errorHab, setErrorHab] = useState("");
+  const [version, setVersion] = useState(0); // fuerza recargar la disponibilidad
+  const [enviando, setEnviando] = useState(false);
+  const [errorForm, setErrorForm] = useState("");
+  const [confirmacion, setConfirmacion] = useState<{
+    respuesta: ReservaPublicaRespuesta;
+    enlace: string;
+  } | null>(null);
+
+  const rangoValido =
+    form.entrada !== "" && form.salida !== "" && form.entrada < form.salida;
+  // Sin fechas válidas se muestra la disponibilidad de hoy
+  const entradaConsulta = rangoValido ? form.entrada : hoyISO();
+  const salidaConsulta = rangoValido ? form.salida : mananaISO();
+
+  useEffect(() => {
+    let vigente = true;
+    setCargandoHab(true);
+    habitacionesService
+      .disponibles(entradaConsulta, salidaConsulta)
+      .then((lista) => {
+        if (!vigente) return;
+        setHabitacionesDisponibles(lista);
+        setErrorHab("");
+      })
+      .catch((e) => {
+        if (!vigente) return;
+        setHabitacionesDisponibles([]);
+        setErrorHab(
+          e instanceof Error ? e.message : "No se pudieron cargar las habitaciones",
+        );
+      })
+      .finally(() => {
+        if (vigente) setCargandoHab(false);
+      });
+    return () => {
+      vigente = false;
+    };
+  }, [entradaConsulta, salidaConsulta, version]);
+
+  // Si la elegida ya no está libre en esas fechas, se usa la primera de la lista
+  const habitacionSeleccionada =
+    habitacionesDisponibles.find((h) => h.id === Number(form.habitacionId)) ??
+    habitacionesDisponibles[0];
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -37,62 +97,73 @@ export default function Landing() {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.entrada >= form.salida) {
-      alert("La fecha de salida debe ser posterior a la de entrada.");
+    if (enviando) return;
+    setErrorForm("");
+
+    if (!rangoValido) {
+      setErrorForm("La fecha de salida debe ser posterior a la de entrada.");
+      return;
+    }
+    if (!habitacionSeleccionada) {
+      setErrorForm("No hay habitaciones disponibles para esas fechas.");
+      return;
+    }
+    const personas = Number(form.personas);
+    if (!Number.isInteger(personas) || personas < 1) {
+      setErrorForm("Indica cuántas personas se hospedarán.");
+      return;
+    }
+    if (personas > habitacionSeleccionada.capacidad) {
+      setErrorForm(
+        `La habitación ${habitacionSeleccionada.numero} admite máximo ${habitacionSeleccionada.capacidad} persona(s).`,
+      );
       return;
     }
 
-    const habitacionSeleccionada = habitaciones.find(
-      (h) => h.id === Number(form.habitacionId),
-    );
-    if (!habitacionSeleccionada) return;
+    // Se abre la pestaña ahora, con el clic del usuario, para que el navegador
+    // no la bloquee; después de guardar se le asigna la dirección de WhatsApp
+    const ventana = window.open("", "_blank");
+    setEnviando(true);
+    try {
+      const r = await reservasService.crearPublica({
+        cliente: form.nombre.trim(),
+        documento: form.documento.trim(),
+        telefono: form.telefono.trim(),
+        habitacionId: habitacionSeleccionada.id,
+        personas,
+        checkIn: form.entrada,
+        checkOut: form.salida,
+        sitio: form.sitio,
+      });
 
-    const noches = nochesEntre(form.entrada, form.salida);
-    const total = noches * habitacionSeleccionada.precioNoche;
+      const mensaje = mensajeReserva({
+        negocio: "Aescondidas",
+        habitacion: `Habitación ${r.habitacionNumero || habitacionSeleccionada.numero} (${habitacionSeleccionada.tipo})`,
+        entrada: form.entrada,
+        salida: form.salida,
+        noches: r.noches,
+        personas,
+        total: r.total,
+        nombre: form.nombre.trim(),
+      });
+      const enlace = enlaceWhatsApp(mensaje);
 
-    crear({
-      cliente: form.nombre,
-      documento: form.documento,
-      telefono: form.telefono,
-      habitacionId: habitacionSeleccionada.id,
-      personas: Number(form.personas),
-      checkIn: form.entrada,
-      checkOut: form.salida,
-      estado: "Pendiente" as EstadoReserva,
-      precioNoche: habitacionSeleccionada.precioNoche,
-      anticipo: 0,
-      notas: "Reserva creada desde la página web",
-    });
-
-    const mensaje = mensajeReserva({
-      negocio: "Aescondidas",
-      habitacion: `Habitación ${habitacionSeleccionada.numero} (${habitacionSeleccionada.tipo})`,
-      entrada: form.entrada,
-      salida: form.salida,
-      noches,
-      personas: Number(form.personas),
-      total,
-      nombre: form.nombre,
-    });
-
-    window.open(enlaceWhatsApp(mensaje), "_blank");
-
-    setForm({
-      nombre: "",
-      documento: "",
-      telefono: "",
-      entrada: "",
-      salida: "",
-      personas: 1,
-      habitacionId: habitaciones[0]?.id || 1,
-    });
+      if (ventana) ventana.location.href = enlace;
+      setConfirmacion({ respuesta: r, enlace });
+      setForm(formInicial);
+      setVersion((v) => v + 1); // esa habitación ya no debe aparecer libre
+    } catch (err) {
+      ventana?.close();
+      setErrorForm(
+        err instanceof Error ? err.message : "No se pudo registrar la reserva.",
+      );
+      setVersion((v) => v + 1);
+    } finally {
+      setEnviando(false);
+    }
   };
-
-  const habitacionesDisponibles = habitaciones.filter(
-    (h) => h.estado === "Disponible",
-  );
 
   return (
     <>
@@ -129,7 +200,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* AQUÍ AGREGAMOS EL ID="SERVICIOS" */}
       <section id="servicios" className="experience-section">
         <div className="container">
           <div className="row align-items-center g-5">
@@ -190,9 +260,19 @@ export default function Landing() {
           </p>
 
           <div className="row g-4 justify-content-center">
-            {habitacionesDisponibles.length === 0 ? (
+            {cargandoHab ? (
               <div className="col-12 text-center text-muted">
-                <p>Por el momento no hay habitaciones disponibles.</p>
+                <p>Cargando habitaciones...</p>
+              </div>
+            ) : errorHab ? (
+              <div className="col-12 text-center text-muted">
+                <p>{errorHab}</p>
+              </div>
+            ) : habitacionesDisponibles.length === 0 ? (
+              <div className="col-12 text-center text-muted">
+                <p>
+                  Por el momento no hay habitaciones disponibles para esas fechas.
+                </p>
               </div>
             ) : (
               habitacionesDisponibles.map((h) => (
@@ -247,130 +327,200 @@ export default function Landing() {
                   <h2 className="text-center mb-4 booking-title">
                     Haz tu Reserva
                   </h2>
-                  <p className="text-center text-muted mb-4">
-                    Completa los datos y te enviaremos a nuestro WhatsApp para
-                    confirmar.
-                  </p>
 
-                  <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                      <label className="form-label fw-semibold">
-                        Habitación seleccionada
-                      </label>
-                      <select
-                        className="form-select"
-                        name="habitacionId"
-                        value={form.habitacionId}
-                        onChange={handleChange}
+                  {confirmacion ? (
+                    <div className="text-center">
+                      <div className="alert alert-success" role="status">
+                        <strong>¡Reserva registrada!</strong>
+                        <br />
+                        Habitación {confirmacion.respuesta.habitacionNumero} ·{" "}
+                        {confirmacion.respuesta.noches} noche(s) · Total{" "}
+                        {formatoCOP(confirmacion.respuesta.total)}
+                      </div>
+                      <p className="text-muted">
+                        Tu reserva queda pendiente de confirmación. Escríbenos
+                        por WhatsApp para confirmarla y coordinar el anticipo.
+                      </p>
+                      <a
+                        href={confirmacion.enlace}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-whatsapp-submit w-100 mb-2"
                       >
-                        {habitaciones.map((h) => (
-                          <option
-                            key={h.id}
-                            value={h.id}
-                            disabled={h.estado !== "Disponible"}
+                        Abrir WhatsApp
+                      </a>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary w-100"
+                        onClick={() => setConfirmacion(null)}
+                      >
+                        Hacer otra reserva
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-center text-muted mb-4">
+                        Completa los datos: registramos tu reserva y te enviamos
+                        a nuestro WhatsApp para confirmar.
+                      </p>
+
+                      {errorForm && (
+                        <div className="alert alert-danger py-2" role="alert">
+                          {errorForm}
+                        </div>
+                      )}
+
+                      <form onSubmit={handleSubmit}>
+                        <div className="mb-3">
+                          <label className="form-label fw-semibold">
+                            Habitación seleccionada
+                          </label>
+                          <select
+                            className="form-select"
+                            name="habitacionId"
+                            value={habitacionSeleccionada?.id ?? ""}
+                            onChange={handleChange}
+                            disabled={habitacionesDisponibles.length === 0}
                           >
-                            {h.numero} - {h.tipo} ({formatoCOP(h.precioNoche)} /
-                            noche){" "}
-                            {h.estado !== "Disponible"
-                              ? " - No disponible"
-                              : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                            {habitacionesDisponibles.map((h) => (
+                              <option key={h.id} value={h.id}>
+                                {h.numero} - {h.tipo} (
+                                {formatoCOP(h.precioNoche)} / noche)
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
-                    <div className="row mb-3">
-                      <div className="col-6">
-                        <label className="form-label fw-semibold">
-                          Entrada
-                        </label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          name="entrada"
-                          required
-                          value={form.entrada}
-                          onChange={handleChange}
-                        />
-                      </div>
-                      <div className="col-6">
-                        <label className="form-label fw-semibold">Salida</label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          name="salida"
-                          required
-                          value={form.salida}
-                          onChange={handleChange}
-                        />
-                      </div>
-                    </div>
+                        <div className="row mb-3">
+                          <div className="col-6">
+                            <label className="form-label fw-semibold">
+                              Entrada
+                            </label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              name="entrada"
+                              required
+                              min={hoyISO()}
+                              value={form.entrada}
+                              onChange={handleChange}
+                            />
+                          </div>
+                          <div className="col-6">
+                            <label className="form-label fw-semibold">
+                              Salida
+                            </label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              name="salida"
+                              required
+                              min={form.entrada || hoyISO()}
+                              value={form.salida}
+                              onChange={handleChange}
+                            />
+                          </div>
+                        </div>
 
-                    <div className="mb-3">
-                      <label className="form-label fw-semibold">
-                        N° de Personas
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        name="personas"
-                        min="1"
-                        required
-                        value={form.personas}
-                        onChange={handleChange}
-                      />
-                    </div>
+                        <div className="mb-3">
+                          <label className="form-label fw-semibold">
+                            N° de Personas
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            name="personas"
+                            min="1"
+                            max={habitacionSeleccionada?.capacidad}
+                            required
+                            value={form.personas}
+                            onChange={handleChange}
+                          />
+                        </div>
 
-                    <div className="mb-3">
-                      <label className="form-label fw-semibold">
-                        Nombre Completo
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="nombre"
-                        required
-                        value={form.nombre}
-                        onChange={handleChange}
-                      />
-                    </div>
+                        <div className="mb-3">
+                          <label className="form-label fw-semibold">
+                            Nombre Completo
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="nombre"
+                            required
+                            minLength={3}
+                            maxLength={100}
+                            autoComplete="name"
+                            value={form.nombre}
+                            onChange={handleChange}
+                          />
+                        </div>
 
-                    <div className="row mb-4">
-                      <div className="col-6">
-                        <label className="form-label fw-semibold">
-                          Documento / Cédula
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="documento"
-                          required
-                          value={form.documento}
-                          onChange={handleChange}
-                        />
-                      </div>
-                      <div className="col-6">
-                        <label className="form-label fw-semibold">
-                          Teléfono
-                        </label>
-                        <input
-                          type="tel"
-                          className="form-control"
-                          name="telefono"
-                          required
-                          value={form.telefono}
-                          onChange={handleChange}
-                        />
-                      </div>
-                    </div>
+                        <div className="row mb-4">
+                          <div className="col-6">
+                            <label className="form-label fw-semibold">
+                              Documento / Cédula
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="documento"
+                              required
+                              value={form.documento}
+                              onChange={handleChange}
+                            />
+                          </div>
+                          <div className="col-6">
+                            <label className="form-label fw-semibold">
+                              Teléfono
+                            </label>
+                            <input
+                              type="tel"
+                              className="form-control"
+                              name="telefono"
+                              required
+                              value={form.telefono}
+                              onChange={handleChange}
+                            />
+                          </div>
+                        </div>
 
-                    <button
-                      type="submit"
-                      className="btn btn-whatsapp-submit w-100"
-                    >
-                      Reservar y enviar a WhatsApp
-                    </button>
-                  </form>
+                        {/* Campo trampa anti-bots (honeypot) */}
+                        <div
+                          style={{
+                            position: "absolute",
+                            left: "-9999px",
+                            opacity: 0,
+                            height: 0,
+                            overflow: "hidden",
+                          }}
+                          aria-hidden="true"
+                        >
+                          <label htmlFor="sitio-reserva">Sitio web</label>
+                          <input
+                            id="sitio-reserva"
+                            type="text"
+                            name="sitio"
+                            tabIndex={-1}
+                            autoComplete="off"
+                            value={form.sitio}
+                            onChange={handleChange}
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          className="btn btn-whatsapp-submit w-100"
+                          disabled={
+                            enviando || habitacionesDisponibles.length === 0
+                          }
+                        >
+                          {enviando
+                            ? "Registrando reserva..."
+                            : "Reservar y enviar a WhatsApp"}
+                        </button>
+                      </form>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
