@@ -1,11 +1,17 @@
 import { useState } from "react";
-import type { EstadoHabitacion, Habitacion, Reserva } from "../../types";
+import type {
+  EstadoHabitacion,
+  Habitacion,
+  HabitacionCreate,
+  Reserva,
+  ReservaCreate,
+} from "../../types";
 import { ESTADOS_HABITACION } from "../../data/constantes";
 import { useHabitaciones } from "../../hooks/useHabitaciones";
 import { useReservas } from "../../hooks/useReservas";
 import { hoyISO } from "../../utils/fechas";
 import { dinero } from "../../utils/formato";
-import { ocupa, totalHospedaje } from "../../utils/reservas";
+import { ocupa } from "../../utils/reservas";
 import FormularioHabitacion from "../../components/hospedaje/FormularioHabitacion";
 import TablaHabitaciones from "../../components/hospedaje/TablaHabitaciones";
 import FormularioReserva from "../../components/hospedaje/FormularioReserva";
@@ -37,16 +43,30 @@ export default function Hospedaje() {
     setTimeout(() => setAviso(null), 6000);
   }
 
-  // ---------- Habitaciones ----------
-  function guardarHabitacion(datos: Omit<Habitacion, "id">, id?: number) {
-    if (id) {
-      hab.actualizar(id, datos);
-      avisar("success", `Habitación ${datos.numero} actualizada.`);
-    } else {
-      hab.agregar(datos);
-      avisar("success", `Habitación ${datos.numero} agregada.`);
+  // Muestra el éxito o el error del servidor; devuelve true si salió bien
+  function resultado(
+    err: string | null,
+    textoOk: string,
+    tipoOk: Aviso["tipo"] = "success",
+  ): boolean {
+    if (err) {
+      avisar("danger", err);
+      return false;
     }
-    setEditandoHab(null);
+    avisar(tipoOk, textoOk);
+    return true;
+  }
+
+  // ---------- Habitaciones ----------
+  async function guardarHabitacion(datos: HabitacionCreate, id?: number) {
+    const err = id ? await hab.actualizar(id, datos) : await hab.agregar(datos);
+    const ok = resultado(
+      err,
+      id
+        ? `Habitación ${datos.numero} actualizada.`
+        : `Habitación ${datos.numero} agregada.`,
+    );
+    if (ok) setEditandoHab(null);
   }
 
   function editarHabitacion(h: Habitacion) {
@@ -54,7 +74,12 @@ export default function Hospedaje() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function eliminarHabitacion(h: Habitacion) {
+  async function cambiarEstadoHabitacion(id: number, estado: EstadoHabitacion) {
+    const err = await hab.cambiarEstado(id, estado);
+    if (err) avisar("danger", err);
+  }
+
+  async function eliminarHabitacion(h: Habitacion) {
     if (reservas.some((r) => r.habitacionId === h.id && ocupa(r))) {
       return avisar(
         "warning",
@@ -62,24 +87,21 @@ export default function Hospedaje() {
       );
     }
     if (!window.confirm(`¿Eliminar la habitación ${h.numero}?`)) return;
-    hab.eliminar(h.id);
-    if (editandoHab?.id === h.id) setEditandoHab(null);
-    avisar("success", `Habitación ${h.numero} eliminada.`);
+    const err = await hab.eliminar(h.id);
+    if (resultado(err, `Habitación ${h.numero} eliminada.`) && editandoHab?.id === h.id)
+      setEditandoHab(null);
   }
 
   // ---------- Reservas ----------
-  function guardarReserva(datos: Omit<Reserva, "id">, id?: number) {
-    if (id) {
-      res.actualizar(id, datos);
-      avisar("success", `Reserva de ${datos.cliente} actualizada.`);
-    } else {
-      res.crear(datos);
-      avisar(
-        "success",
-        `Reserva creada para ${datos.cliente} (habitación ${numeroHab(datos.habitacionId)}).`,
-      );
-    }
-    setEditandoRes(null);
+  async function guardarReserva(datos: ReservaCreate, id?: number) {
+    const err = id ? await res.actualizar(id, datos) : await res.crear(datos);
+    const ok = resultado(
+      err,
+      id
+        ? `Reserva de ${datos.cliente} actualizada.`
+        : `Reserva creada para ${datos.cliente} (habitación ${numeroHab(datos.habitacionId)}).`,
+    );
+    if (ok) setEditandoRes(null);
   }
 
   function editarReserva(r: Reserva) {
@@ -87,12 +109,13 @@ export default function Hospedaje() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function confirmar(id: number) {
-    res.cambiarEstado(id, "Confirmada");
-    avisar("success", "Reserva confirmada.");
+  async function confirmar(id: number) {
+    const err = await res.cambiarEstado(id, "Confirmada");
+    resultado(err, "Reserva confirmada.");
   }
 
-  function hacerCheckIn(r: Reserva) {
+  // El servidor pone la habitación en Ocupada; solo hay que recargarla
+  async function hacerCheckIn(r: Reserva) {
     const h = habitaciones.find((x) => x.id === r.habitacionId);
     if (!h)
       return avisar("danger", "La habitación de esta reserva ya no existe.");
@@ -102,49 +125,49 @@ export default function Hospedaje() {
         `La habitación ${h.numero} está en estado "${h.estado}". Debe estar Disponible para hacer el check-in.`,
       );
     }
-    res.cambiarEstado(r.id, "CheckIn");
-    hab.cambiarEstado(h.id, "Ocupada");
-    avisar("success", `Check-in de ${r.cliente} en la habitación ${h.numero}.`);
+    const err = await res.cambiarEstado(r.id, "CheckIn");
+    if (resultado(err, `Check-in de ${r.cliente} en la habitación ${h.numero}.`))
+      await hab.recargar();
   }
 
-  function hacerCheckOut(r: Reserva) {
-    const saldo = totalHospedaje(r) - r.anticipo;
+  // El servidor pone la habitación en Limpieza; solo hay que recargarla
+  async function hacerCheckOut(r: Reserva) {
     if (
-      saldo > 0 &&
+      r.saldo > 0 &&
       !window.confirm(
-        `Queda un saldo de ${dinero(saldo)}. ¿Hacer el check-out de todos modos?`,
+        `Queda un saldo de ${dinero(r.saldo)}. ¿Hacer el check-out de todos modos?`,
       )
     )
       return;
-    res.cambiarEstado(r.id, "CheckOut");
-    hab.cambiarEstado(r.habitacionId, "Limpieza");
-    avisar(
-      "success",
+    const err = await res.cambiarEstado(r.id, "CheckOut");
+    const ok = resultado(
+      err,
       `Check-out de ${r.cliente}. La habitación ${numeroHab(r.habitacionId)} pasó a limpieza.`,
     );
+    if (ok) await hab.recargar();
   }
 
-  function cancelar(r: Reserva) {
+  async function cancelar(r: Reserva) {
     if (!window.confirm(`¿Cancelar la reserva de ${r.cliente}?`)) return;
-    res.cambiarEstado(r.id, "Cancelada");
-    avisar("warning", "Reserva cancelada.");
+    const err = await res.cambiarEstado(r.id, "Cancelada");
+    resultado(err, "Reserva cancelada.", "warning");
   }
 
-  function abonar(r: Reserva, monto: number) {
-    res.abonar(r.id, monto);
-    avisar("success", `Abono de ${dinero(monto)} registrado.`);
+  async function abonar(r: Reserva, monto: number) {
+    const err = await res.abonar(r.id, monto);
+    resultado(err, `Abono de ${dinero(monto)} registrado.`);
   }
 
-  function eliminarReserva(r: Reserva) {
+  async function eliminarReserva(r: Reserva) {
     if (
       !window.confirm(
         `¿Eliminar del historial la reserva de ${r.cliente}? No se puede deshacer.`,
       )
     )
       return;
-    res.eliminar(r.id);
-    if (editandoRes?.id === r.id) setEditandoRes(null);
-    avisar("success", "Reserva eliminada del historial.");
+    const err = await res.eliminar(r.id);
+    if (resultado(err, "Reserva eliminada del historial.") && editandoRes?.id === r.id)
+      setEditandoRes(null);
   }
 
   // ---------- Resumen ----------
@@ -198,6 +221,11 @@ export default function Hospedaje() {
             aria-label="Cerrar"
             onClick={() => setAviso(null)}
           ></button>
+        </div>
+      )}
+      {(hab.error || res.error) && (
+        <div className="alert alert-danger" role="alert">
+          {hab.error ?? res.error}
         </div>
       )}
 
@@ -327,7 +355,7 @@ export default function Hospedaje() {
               habitaciones={habitacionesVisibles}
               reservas={reservas}
               onEditar={editarHabitacion}
-              onCambiarEstado={hab.cambiarEstado}
+              onCambiarEstado={cambiarEstadoHabitacion}
               onEliminar={eliminarHabitacion}
             />
           </div>

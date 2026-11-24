@@ -2,12 +2,11 @@ import { useState } from "react";
 import type { EstadoOrden, MetodoPago, Orden } from "../../types";
 import { METODOS_PAGO } from "../../data/constantes";
 import { dinero } from "../../utils/formato";
-import { totalOrden } from "../../utils/ordenes";
 
 interface Props {
   ordenes: Orden[];
-  onCobrar: (id: number, metodo: MetodoPago) => void;
-  onAnular: (id: number) => void;
+  onCobrar: (id: number, metodo: MetodoPago) => Promise<string | null>;
+  onAnular: (id: number) => Promise<string | null>;
   puedeAnular?: boolean;
 }
 
@@ -26,12 +25,23 @@ export default function ListaOrdenes({
 }: Props) {
   const [filtro, setFiltro] = useState<EstadoOrden>("Abierta");
   const [metodos, setMetodos] = useState<Record<number, MetodoPago>>({});
+  const [error, setError] = useState("");
+  const [procesando, setProcesando] = useState<number | null>(null);
 
   const metodoDe = (id: number): MetodoPago => metodos[id] ?? "Efectivo";
 
   const visibles = ordenes
     .filter((o) => o.estado === filtro)
     .sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+  async function ejecutar(id: number, accion: () => Promise<string | null>) {
+    if (procesando !== null) return;
+    setError("");
+    setProcesando(id);
+    const err = await accion();
+    setProcesando(null);
+    if (err) setError(err);
+  }
 
   return (
     <div>
@@ -51,6 +61,12 @@ export default function ListaOrdenes({
           </button>
         ))}
       </div>
+
+      {error && (
+        <div className="alert alert-danger py-2" role="alert">
+          {error}
+        </div>
+      )}
 
       {visibles.length === 0 ? (
         <div className="alert alert-light border">
@@ -74,23 +90,23 @@ export default function ListaOrdenes({
                       timeStyle: "short",
                     })}
                   </p>
-                  {o.vendedor && (
+                  {o.vendedorNombre && (
                     <p className="small text-secondary mb-2">
-                      Vendedor: {o.vendedor}
+                      Vendedor: {o.vendedorNombre}
                     </p>
                   )}
 
                   <ul className="list-unstyled small mb-2">
-                    {o.items.map((i) => (
+                    {o.detalles.map((d) => (
                       <li
-                        key={i.itemId}
+                        key={d.id}
                         className="d-flex justify-content-between"
                       >
                         <span>
-                          {i.area === "Bar" ? "🍹" : "🍽️"} {i.cantidad} ×{" "}
-                          {i.nombre}
+                          {d.area === "Bar" ? "🍹" : "🍽️"} {d.cantidad} ×{" "}
+                          {d.itemMenuNombre ?? "Item eliminado"}
                         </span>
-                        <span>{dinero(i.precio * i.cantidad)}</span>
+                        <span>{dinero(d.subtotal)}</span>
                       </li>
                     ))}
                   </ul>
@@ -103,7 +119,7 @@ export default function ListaOrdenes({
 
                   <div className="d-flex justify-content-between fw-semibold border-top pt-2 mb-3">
                     <span>Total</span>
-                    <span>{dinero(totalOrden(o))}</span>
+                    <span>{dinero(o.total)}</span>
                   </div>
 
                   {o.estado === "Cerrada" && o.metodoPago && (
@@ -118,6 +134,7 @@ export default function ListaOrdenes({
                         className="form-select form-select-sm"
                         aria-label="Método de pago"
                         value={metodoDe(o.id)}
+                        disabled={procesando !== null}
                         onChange={(e) =>
                           setMetodos({
                             ...metodos,
@@ -132,20 +149,28 @@ export default function ListaOrdenes({
                       <div className="d-flex gap-2">
                         <button
                           className="btn btn-success btn-sm flex-grow-1"
-                          onClick={() => onCobrar(o.id, metodoDe(o.id))}
+                          disabled={procesando !== null}
+                          onClick={() =>
+                            ejecutar(o.id, () =>
+                              onCobrar(o.id, metodoDe(o.id)),
+                            )
+                          }
                         >
-                          Cobrar y cerrar
+                          {procesando === o.id
+                            ? "Procesando..."
+                            : "Cobrar y cerrar"}
                         </button>
                         {puedeAnular && (
                           <button
                             className="btn btn-outline-danger btn-sm"
+                            disabled={procesando !== null}
                             onClick={() => {
                               if (
                                 window.confirm(
-                                  `¿Anular la orden de la mesa ${o.mesa}?`
+                                  `¿Anular la orden de la mesa ${o.mesa}?`,
                                 )
                               ) {
-                                onAnular(o.id);
+                                void ejecutar(o.id, () => onAnular(o.id));
                               }
                             }}
                           >

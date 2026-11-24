@@ -1,119 +1,90 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { TarjetaResumen } from "../../components/TarjetaResumen";
+import { useGastos } from "../../hooks/useGastos";
+import { useInventario } from "../../hooks/useInventario";
+import { useRestauranteBar } from "../../hooks/useRestauranteBar";
+import { useReservas } from "../../hooks/useReservas";
+import { useAuth } from "../../auth/useAuth";
+import { dinero } from "../../utils/formato";
+import { esDeHoy, totalOrden } from "../../utils/ordenes"; // Asegúrate de que esta ruta sea correcta
+import { ocupa } from "../../utils/reservas"; // Asegúrate de que esta ruta sea correcta
 
 export const Inicio: React.FC = () => {
+  const { gastos } = useGastos();
+  const { insumos } = useInventario();
+  const { ordenes } = useRestauranteBar();
+  const { reservas } = useReservas();
+  const { usuarios } = useAuth();
+
+  // 1. Ventas del día (Restaurante + Bar)
+  const ventasHoy = useMemo(() => {
+    return ordenes
+      .filter((o) => o.estado === "Cerrada" && esDeHoy(o.fecha))
+      .reduce((suma, o) => suma + totalOrden(o), 0);
+  }, [ordenes]);
+
+  // 2. Insumos por agotarse
+  const insumosBajos = useMemo(() => {
+    return insumos.filter((i) => i.stock <= i.stockMinimo).length;
+  }, [insumos]);
+
+  // 3. Gastos totales del mes actual
+  const gastosMes = useMemo(() => {
+    return gastos.reduce((acc, g) => acc + g.monto, 0);
+  }, [gastos]);
+
+  // 4. Reservas activas (CheckIn o Confirmadas)
+  const reservasActivas = useMemo(() => {
+    return reservas.filter(ocupa).length;
+  }, [reservas]);
+
   return (
     <div className="dashboard-inicio">
-      <h2>Resumen de Gestión</h2>
+      <div className="mb-4">
+        <h2 className="mb-1">Resumen de Gestión</h2>
+        <p className="text-secondary mb-0">Vista rápida del estado de tu negocio hoy.</p>
+      </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "1rem",
-          marginTop: "1rem",
-        }}
-      >
-        <TarjetaResumen
-          titulo="Ventas Totales"
-          valor="$1,250,000"
-          tendencia="+15%"
-          esPositivo={true}
-          subtexto="vs. mes anterior"
-        />
+      <div className="row g-4 mt-2">
+        {/* TARJETA 1: VENTAS */}
+        <div className="col-md-6 col-xl-3">
+          <TarjetaResumen
+            titulo="Ventas de Hoy"
+            valor={dinero(ventasHoy)}
+            subtexto="Restaurante y Bar"
+          />
+        </div>
 
-        <TarjetaResumen
-          titulo="Productos en Stock"
-          valor="342"
-          subtexto="20 sin inventario"
-        />
+        {/* TARJETA 2: RESERVAS */}
+        <div className="col-md-6 col-xl-3">
+          <TarjetaResumen
+            titulo="Reservas Activas"
+            valor={reservasActivas.toString()}
+            subtexto={`de ${reservas.length} en total`}
+          />
+        </div>
 
-        <TarjetaResumen
-          titulo="Clientes Registrados"
-          valor="89"
-          tendencia="+5 esta semana"
-          esPositivo={true}
-        />
+        {/* TARJETA 3: INVENTARIO */}
+        <div className="col-md-6 col-xl-3">
+          <TarjetaResumen
+            titulo="Insumos en Stock"
+            valor={insumos.length.toString()}
+            tendencia={insumosBajos > 0 ? `${insumosBajos} por agotarse` : "Todo en orden"}
+            esPositivo={insumosBajos === 0}
+          />
+        </div>
 
-        <TarjetaResumen
-          titulo="Gastos del Mes"
-          valor="$430,000"
-          tendencia="-3%"
-          esPositivo={false}
-          subtexto="vs. mes anterior"
-        />
+        {/* TARJETA 4: GASTOS Y USUARIOS */}
+        <div className="col-md-6 col-xl-3">
+          <TarjetaResumen
+            titulo="Gastos del Mes"
+            valor={dinero(gastosMes)}
+            subtexto={`${usuarios.length} usuarios registrados`}
+          />
+        </div>
       </div>
     </div>
   );
 };
 
 export default Inicio;
-
-/* import TarjetaResumen from "../../components/TarjetaResumen";
-import { habitaciones, reservas } from "../../data/datosPrueba";
-
-function dinero(valor: number) {
-  return "$" + valor.toLocaleString("es-CO");
-}
-
-export default function Inicio() {
-  const libres = habitaciones.filter((h) => h.estado === "Disponible").length;
-  const ocupadas = habitaciones.filter((h) => h.estado === "Ocupada").length;
-
-  const activas = reservas
-    .filter((r) => r.estado !== "Cancelada" && r.estado !== "CheckOut")
-    .sort((a, b) => a.checkIn.localeCompare(b.checkIn));
-
-  const anticipos = activas.reduce((suma, r) => suma + r.anticipo, 0);
-
-  function numeroHabitacion(id: number) {
-    return habitaciones.find((h) => h.id === id)?.numero ?? "-";
-  }
-
-  return (
-    <div>
-      <h1>Resumen del negocio</h1>
-
-      <section className="tarjetas">
-        <TarjetaResumen
-          titulo="Habitaciones libres"
-          valor={libres}
-          detalle={`de ${habitaciones.length} en total`}
-        />
-        <TarjetaResumen titulo="Habitaciones ocupadas" valor={ocupadas} />
-        <TarjetaResumen titulo="Reservas activas" valor={activas.length} />
-        <TarjetaResumen
-          titulo="Anticipos recibidos"
-          valor={dinero(anticipos)}
-        />
-      </section>
-
-      <section className="panel">
-        <h2>Próximas reservas</h2>
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th>Cliente</th>
-              <th>Habitación</th>
-              <th>Entrada</th>
-              <th>Salida</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {activas.map((r) => (
-              <tr key={r.id}>
-                <td>{r.cliente}</td>
-                <td>{numeroHabitacion(r.habitacionId)}</td>
-                <td>{r.checkIn}</td>
-                <td>{r.checkOut}</td>
-                <td>{r.estado}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-    </div>
-  );
-}
- */

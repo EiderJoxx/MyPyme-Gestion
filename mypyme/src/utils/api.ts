@@ -69,3 +69,18 @@ export function qs(params: Record<string, string | number | undefined | null>) {
   const s = p.toString();
   return s ? `?${s}` : "";
 }
+
+export const mensajeError = (e: unknown) =>
+  e instanceof Error ? e.message : "Ocurrió un error inesperado";
+
+// Ejecuta una acción y devuelve null si salió bien, o el mensaje de error
+export async function intentar(
+  accion: () => Promise<void>,
+): Promise<string | null> {
+  try {
+    await accion();
+    return null;
+  } catch (e) {
+    return mensajeError(e);
+  }
+}

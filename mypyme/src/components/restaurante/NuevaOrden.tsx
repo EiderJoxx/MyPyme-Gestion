@@ -9,8 +9,7 @@ interface Props {
   mesasOcupadas: number[];
   limite?: (m: ItemMenu) => number | undefined;
   onMesaChange: (mesa: number | null) => void;
-  onGuardar: (mesa: number, items: ItemOrden[], nota: string) => void;
-}
+onGuardar: (mesa: number, items: ItemOrden[], nota: string) => Promise<string | null>;}
 
 type FiltroArea = "Todas" | AreaMenu;
 
@@ -27,6 +26,7 @@ export default function NuevaOrden({
   const [error, setError] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [area, setArea] = useState<FiltroArea>("Todas");
+  const [enviando, setEnviando] = useState(false);
 
   const opcionesArea: FiltroArea[] = ["Todas", ...AREAS];
   const total = items.reduce((suma, i) => suma + i.precio * i.cantidad, 0);
@@ -76,15 +76,21 @@ export default function NuevaOrden({
     );
   }
 
-  function guardar() {
-    if (mesa === null) return setError("Elige una mesa");
-    if (items.length === 0) return setError("Agrega al menos un producto");
-    onGuardar(mesa, items, nota);
-    setItems([]);
-    setNota("");
-    setError("");
-    onMesaChange(null);
-  }
+  async function guardar() {
+  if (enviando) return;
+  if (mesa === null) return setError("Elige una mesa");
+  if (items.length === 0) return setError("Agrega al menos un producto");
+
+  setEnviando(true);
+  const err = await onGuardar(mesa, items, nota);
+  setEnviando(false);
+  if (err) return setError(err); 
+
+  setItems([]);
+  setNota("");
+  setError("");
+  onMesaChange(null);
+}
 
   return (
     <div className="card shadow-sm">
@@ -266,8 +272,13 @@ export default function NuevaOrden({
             type="button"
             className="btn btn-primary flex-grow-1"
             onClick={guardar}
+            disabled={enviando}
           >
-            {mesaOcupada ? "Agregar a la orden" : "Crear orden"}
+            {enviando
+    ? "Guardando..."
+    : mesaOcupada
+      ? "Agregar a la orden"
+      : "Crear orden"}
           </button>
           {items.length > 0 && (
             <button

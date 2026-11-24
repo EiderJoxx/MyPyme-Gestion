@@ -1,49 +1,105 @@
-import { useLocalStorage } from "./useLocalStorage";
-import { insumosIniciales } from "../data/datosPrueba";
+import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "../auth/useAuth";
+import { insumosService } from "../services/insumosService";
+import { movimientosService } from "../services/movimientosService";
+import { intentar, mensajeError } from "../utils/api";
 import type {
   Insumo,
-  ItemOrden,
+  InsumoCreate,
   MovimientoInventario,
   TipoMovimiento,
 } from "../types";
 
-export function useInventario() {
-  const [insumos, setInsumos] = useLocalStorage<Insumo[]>(
-    "mypyme_insumos",
-    insumosIniciales,
-  );
-  const [movimientos, setMovimientos] = useLocalStorage<MovimientoInventario[]>(
-    "mypyme_movimientos",
-    [],
-  );
+const normalizarInsumo = (i: Insumo): Insumo => ({
+  ...i,
+  categoria: i.categoria ?? "",
+  unidad: i.unidad ?? "",
+  itemMenuId: i.itemMenuId ?? undefined,
+});
 
-  function guardarInsumo(datos: Omit<Insumo, "id">, id?: number) {
-    if (id) {
-      setInsumos((prev) =>
-        prev.map((i) => (i.id === id ? { ...datos, id } : i)),
-      );
-      return;
-    }
-    const nuevoId = Date.now();
-    setInsumos((prev) => [...prev, { ...datos, id: nuevoId }]);
-    if (datos.stock > 0) {
-      setMovimientos((prev) => [
-        ...prev,
-        {
-          id: nuevoId + 1,
-          insumoId: nuevoId,
-          nombreInsumo: datos.nombre,
-          tipo: "Entrada",
-          cantidad: datos.stock,
-          fecha: new Date().toISOString(),
-          detalle: "Stock inicial",
-        },
+const normalizarMovimiento = (m: MovimientoInventario): MovimientoInventario => ({
+  ...m,
+  insumoNombre: m.insumoNombre ?? "",
+  detalle: m.detalle ?? "",
+});
+
+const aCuerpo = (d: InsumoCreate): InsumoCreate => ({
+  nombre: d.nombre.trim(),
+  categoria: d.categoria?.trim() || null,
+  unidad: d.unidad?.trim() || null,
+  stock: d.stock,
+  stockMinimo: d.stockMinimo,
+  costoUnitario: d.costoUnitario,
+  itemMenuId: d.itemMenuId ?? null,
+  consumoPorVenta: d.consumoPorVenta,
+});
+
+export function useInventario() {
+  const { usuario } = useAuth();
+  const esAdmin = usuario?.rol === "Administrador";
+
+  const [insumos, setInsumos] = useState<Insumo[]>([]);
+  const [movimientos, setMovimientos] = useState<MovimientoInventario[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const recargar = useCallback(async () => {
+    try {
+      setError(null);
+      const [ins, mov] = await Promise.all([
+        insumosService.listar(),
+        // Los movimientos son solo del Administrador
+        esAdmin
+          ? movimientosService.listar()
+          : Promise.resolve([] as MovimientoInventario[]),
       ]);
+      setInsumos(ins.map(normalizarInsumo));
+      setMovimientos(mov.map(normalizarMovimiento));
+    } catch (e) {
+      setError(mensajeError(e));
+    } finally {
+      setCargando(false);
     }
+  }, [esAdmin]);
+
+  useEffect(() => {
+    void recargar();
+  }, [recargar]);
+
+  // Todas devuelven null si salió bien, o el mensaje de error del servidor
+  function guardarInsumo(datos: InsumoCreate, id?: number) {
+    return intentar(async () => {
+      try {
+        const cuerpo = aCuerpo(datos);
+        if (id) {
+          const actual = insumos.find((i) => i.id === id);
+          await insumosService.actualizar(id, cuerpo);
+          // El PUT ignora el stock: si cambió, se aplica como ajuste
+          if (actual && datos.stock !== actual.stock) {
+            await movimientosService.registrar({
+              insumoId: id,
+              tipo: "Ajuste",
+              cantidad: datos.stock,
+              detalle: "Ajuste al editar el insumo",
+            });
+          }
+        } else {
+          await insumosService.crear(cuerpo);
+        }
+      } finally {
+        await recargar();
+      }
+    });
   }
 
   function eliminarInsumo(id: number) {
-    setInsumos((prev) => prev.filter((i) => i.id !== id));
+    return intentar(async () => {
+      try {
+        await insumosService.eliminar(id);
+      } finally {
+        await recargar();
+      }
+    });
   }
 
   // valor: cantidad (Entrada/Salida) o el stock contado (Ajuste)
@@ -54,80 +110,41 @@ export function useInventario() {
     detalle: string,
     costoUnitario?: number,
   ) {
-    const actual = insumos.find((i) => i.id === id);
-    if (!actual) return;
-    const delta =
-      tipo === "Entrada"
-        ? valor
-        : tipo === "Salida"
-          ? -valor
-          : valor - actual.stock;
-    const stockNuevo = Math.max(0, actual.stock + delta);
-
-    setInsumos((prev) =>
-      prev.map((i) =>
-        i.id === id
-          ? {
-              ...i,
-              stock: stockNuevo,
-              costoUnitario: costoUnitario ?? i.costoUnitario,
-            }
-          : i,
-      ),
-    );
-    setMovimientos((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        insumoId: id,
-        nombreInsumo: actual.nombre,
-        tipo,
-        cantidad: delta,
-        fecha: new Date().toISOString(),
-        detalle,
-      },
-    ]);
-  }
-
-  // Descuenta los insumos vinculados a los productos de una orden cobrada
-  function descontarVenta(items: ItemOrden[], referencia: string) {
-    const descuentos = new Map<number, number>();
-    insumos.forEach((ins) => {
-      if (ins.itemMenuId === undefined) return;
-      const vendidos = items
-        .filter((i) => i.itemId === ins.itemMenuId)
-        .reduce((s, i) => s + i.cantidad, 0);
-      if (vendidos > 0) descuentos.set(ins.id, vendidos * ins.consumoPorVenta);
+    return intentar(async () => {
+      const actual = insumos.find((i) => i.id === id);
+      if (!actual) throw new Error("El insumo ya no existe");
+      try {
+        await movimientosService.registrar({
+          insumoId: id,
+          tipo,
+          cantidad: valor,
+          detalle: detalle.trim() || null,
+        });
+        // La API no guarda el costo en el movimiento: se actualiza en el insumo
+        if (
+          costoUnitario !== undefined &&
+          costoUnitario > 0 &&
+          costoUnitario !== actual.costoUnitario
+        ) {
+          await insumosService.actualizar(
+            id,
+            aCuerpo({ ...actual, costoUnitario }),
+          );
+        }
+      } finally {
+        await recargar();
+      }
     });
-    if (descuentos.size === 0) return;
-
-    setInsumos((prev) =>
-      prev.map((i) =>
-        descuentos.has(i.id)
-          ? { ...i, stock: Math.max(0, i.stock - (descuentos.get(i.id) ?? 0)) }
-          : i,
-      ),
-    );
-    setMovimientos((prev) => [
-      ...prev,
-      ...Array.from(descuentos, ([insumoId, cantidad], pos) => ({
-        id: Date.now() + pos,
-        insumoId,
-        nombreInsumo: insumos.find((i) => i.id === insumoId)?.nombre ?? "",
-        tipo: "Salida" as const,
-        cantidad: -cantidad,
-        fecha: new Date().toISOString(),
-        detalle: referencia,
-      })),
-    ]);
   }
 
   return {
     insumos,
     movimientos,
+    cargando,
+    error,
+    recargar,
     guardarInsumo,
     eliminarInsumo,
     registrarMovimiento,
-    descontarVenta,
   };
 }

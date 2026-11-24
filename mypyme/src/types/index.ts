@@ -81,6 +81,16 @@ export interface RangoOcupado {
   checkOut: string;
 }
 
+export interface ItemMenuCreate {
+  nombre: string;
+  area: AreaMenu;
+  categoria: string;
+  precio: number;
+  descripcion?: string | null;
+  foto?: string | null;
+  disponible: boolean;
+}
+
 export interface ItemMenu {
   id: number;
   nombre: string;
@@ -92,7 +102,6 @@ export interface ItemMenu {
   disponible: boolean;
 }
 
-export type ItemMenuCreate = Omit<ItemMenu, "id">;
 
 export type Bebida = Pick<ItemMenu, "id" | "nombre" | "precio" | "descripcion" | "foto">;
 
@@ -111,13 +120,12 @@ export interface Orden {
   id: number;
   mesa: number;
   fecha: string;
-  nota?: string | null;
+  items: ItemOrden[];
+  nota: string;
   estado: EstadoOrden;
-  metodoPago?: MetodoPago | null;
-  vendedorId?: number | null;
-  vendedorNombre?: string | null;
-  detalles: DetalleOrden[];
-  total: number; 
+  metodoPago?: MetodoPago;
+  vendedorId?: number;
+  vendedor?: string; // <-- AGREGA ESTA LÍNEA AQUÍ
 }
 
 export interface DetalleOrdenCreate {
@@ -129,9 +137,14 @@ export interface DetalleOrdenCreate {
 
 export interface OrdenCreate {
   mesa: number;
-  nota?: string | null;
-  vendedorId?: number | null;
-  detalles: DetalleOrdenCreate[];
+  nota: string;
+  vendedorId?: number;
+  detalles: {
+    itemMenuId: number;
+    cantidad: number;
+    precioUnitario: number;
+    area: AreaMenu;
+  }[];
 }
 
 export interface OrdenUpdate {
@@ -150,6 +163,8 @@ export interface ItemOrden {
   precio: number;
   cantidad: number;
 }
+
+
 
 export interface Reserva {
   id: number;
@@ -195,6 +210,7 @@ export interface ReservaPublicaRespuesta {
   noches: number;
   total: number;
 }
+
 
 export interface Insumo {
   id: number;

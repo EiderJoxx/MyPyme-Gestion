@@ -7,14 +7,11 @@ import type {
 } from "../../types";
 import { useInventario } from "../../hooks/useInventario";
 import { useGastos } from "../../hooks/useGastos";
+import { useRestauranteBar } from "../../hooks/useRestauranteBar";
+import { useReservas } from "../../hooks/useReservas";
 import { hoyISO } from "../../utils/fechas";
 import { dinero } from "../../utils/formato";
 import { calcularResumen, rangoDe } from "../../utils/finanzas";
-import {
-  leerMenuGuardado,
-  leerOrdenesGuardadas,
-  leerReservasGuardadas,
-} from "../../utils/lecturas";
 import FormularioInsumo from "../../components/administracion/FormularioInsumo";
 import FormularioMovimiento from "../../components/administracion/FormularioMovimiento";
 import TablaInventario from "../../components/administracion/TablaInventario";
@@ -29,10 +26,8 @@ type Aviso = { tipo: "success" | "warning" | "danger"; texto: string };
 export default function Administracion() {
   const inv = useInventario();
   const gas = useGastos();
-  // Datos de otros módulos: solo lectura
-  const [menu] = useState(leerMenuGuardado);
-  const [ordenes] = useState(leerOrdenesGuardadas);
-  const [reservas] = useState(leerReservasGuardadas);
+  const { menu, ordenes } = useRestauranteBar();
+  const { reservas } = useReservas();
 
   const [pestana, setPestana] = useState<Pestana>("inventario");
   const [aviso, setAviso] = useState<Aviso | null>(null);
@@ -51,20 +46,19 @@ export default function Administracion() {
   const subirPagina = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   // ---------- Inventario ----------
-  function guardarInsumo(datos: Omit<Insumo, "id">, id?: number) {
-    inv.guardarInsumo(datos, id);
+  async function guardarInsumo(datos: Omit<Insumo, "id">, id?: number) {
+    const error = await inv.guardarInsumo(datos, id);
+    if (error) return avisar("danger", error);
+
     setEditandoInsumo(null);
-    avisar(
-      "success",
-      id
-        ? `Insumo "${datos.nombre}" actualizado.`
-        : `Insumo "${datos.nombre}" agregado.`,
-    );
+    avisar("success", id ? `Insumo "${datos.nombre}" actualizado.` : `Insumo "${datos.nombre}" agregado.`);
   }
 
-  function eliminarInsumo(i: Insumo) {
+  async function eliminarInsumo(i: Insumo) {
     if (!window.confirm(`¿Eliminar "${i.nombre}" del inventario?`)) return;
-    inv.eliminarInsumo(i.id);
+    const error = await inv.eliminarInsumo(i.id);
+    if (error) return avisar("danger", error);
+
     if (editandoInsumo?.id === i.id) setEditandoInsumo(null);
     if (movimiento?.insumo.id === i.id) setMovimiento(null);
     avisar("success", `Insumo "${i.nombre}" eliminado.`);
@@ -82,7 +76,7 @@ export default function Administracion() {
     subirPagina();
   }
 
-  function guardarMovimiento(datos: DatosMovimiento) {
+  async function guardarMovimiento(datos: DatosMovimiento) {
     if (!movimiento) return;
     const { insumo, tipo } = movimiento;
     const costoUnitario =
@@ -90,26 +84,29 @@ export default function Administracion() {
         ? datos.costoTotal / datos.cantidad
         : undefined;
 
-    inv.registrarMovimiento(
+    const errorMov = await inv.registrarMovimiento(
       insumo.id,
       tipo,
       datos.cantidad,
       datos.detalle,
-      costoUnitario,
+      costoUnitario
     );
+    if (errorMov) return avisar("danger", errorMov);
 
     if (tipo === "Entrada" && datos.costoTotal > 0) {
-      gas.guardar({
+      const errorGas = await gas.guardar({
         fecha: hoyISO(),
         categoria: "Compras de inventario",
         descripcion: `Compra de ${datos.cantidad} ${insumo.unidad} de ${insumo.nombre}`,
         proveedor: datos.proveedor,
         monto: datos.costoTotal,
       });
-      avisar(
-        "success",
-        `Entrada registrada y gasto de ${dinero(datos.costoTotal)} creado.`,
-      );
+
+      if (errorGas) {
+        avisar("warning", `Movimiento guardado, pero falló el gasto: ${errorGas}`);
+      } else {
+        avisar("success", `Entrada registrada y gasto de ${dinero(datos.costoTotal)} creado.`);
+      }
     } else {
       avisar("success", `${tipo} registrada en "${insumo.nombre}".`);
     }
@@ -117,15 +114,19 @@ export default function Administracion() {
   }
 
   // ---------- Gastos ----------
-  function guardarGasto(datos: Omit<Gasto, "id">, id?: number) {
-    gas.guardar(datos, id);
+  async function guardarGasto(datos: Omit<Gasto, "id">, id?: number) {
+    const error = await gas.guardar(datos, id);
+    if (error) return avisar("danger", error);
+
     setEditandoGasto(null);
     avisar("success", id ? "Gasto actualizado." : "Gasto registrado.");
   }
 
-  function eliminarGasto(g: Gasto) {
+  async function eliminarGasto(g: Gasto) {
     if (!window.confirm(`¿Eliminar el gasto "${g.descripcion}"?`)) return;
-    gas.eliminar(g.id);
+    const error = await gas.eliminar(g.id);
+    if (error) return avisar("danger", error);
+
     if (editandoGasto?.id === g.id) setEditandoGasto(null);
     avisar("success", "Gasto eliminado.");
   }
@@ -136,41 +137,22 @@ export default function Administracion() {
   }
 
   // ---------- Resumen ----------
-  const valorInventario = inv.insumos.reduce(
-    (suma, i) => suma + i.stock * i.costoUnitario,
-    0,
-  );
+  const valorInventario = inv.insumos.reduce((suma, i) => suma + i.stock * i.costoUnitario, 0);
   const bajos = inv.insumos.filter((i) => i.stock <= i.stockMinimo).length;
   const mes = rangoDe("mes");
-  const resumenMes = calcularResumen(
-    ordenes,
-    reservas,
-    gas.gastos,
-    mes.desde,
-    mes.hasta,
-  );
+  const resumenMes = calcularResumen(ordenes, reservas, gas.gastos, mes.desde, mes.hasta);
 
   return (
     <div>
       <div className="mb-4">
         <h1 className="mb-1">Administración</h1>
-        <p className="text-secondary mb-0">
-          Inventario, gastos y reportes del negocio.
-        </p>
+        <p className="text-secondary mb-0">Inventario, gastos y reportes del negocio.</p>
       </div>
 
       {aviso && (
-        <div
-          className={`alert alert-${aviso.tipo} d-flex justify-content-between align-items-center`}
-          role="alert"
-        >
+        <div className={`alert alert-${aviso.tipo} d-flex justify-content-between align-items-center`} role="alert">
           <span>{aviso.texto}</span>
-          <button
-            type="button"
-            className="btn-close"
-            aria-label="Cerrar"
-            onClick={() => setAviso(null)}
-          ></button>
+          <button type="button" className="btn-close" onClick={() => setAviso(null)}></button>
         </div>
       )}
 
@@ -178,21 +160,13 @@ export default function Administracion() {
         <div className="col-sm-6 col-xl-3">
           <div className="tarjeta">
             <p className="tarjeta-titulo">Valor del inventario</p>
-            <p className="tarjeta-valor">
-              {dinero(Math.round(valorInventario))}
-            </p>
+            <p className="tarjeta-valor">{dinero(Math.round(valorInventario))}</p>
           </div>
         </div>
         <div className="col-sm-6 col-xl-3">
           <div className="tarjeta">
             <p className="tarjeta-titulo">Insumos por reponer</p>
-            <p
-              className={
-                bajos > 0 ? "tarjeta-valor text-danger" : "tarjeta-valor"
-              }
-            >
-              {bajos}
-            </p>
+            <p className={bajos > 0 ? "tarjeta-valor text-danger" : "tarjeta-valor"}>{bajos}</p>
           </div>
         </div>
         <div className="col-sm-6 col-xl-3">
@@ -204,13 +178,7 @@ export default function Administracion() {
         <div className="col-sm-6 col-xl-3">
           <div className="tarjeta">
             <p className="tarjeta-titulo">Utilidad del mes</p>
-            <p
-              className={
-                resumenMes.utilidad < 0
-                  ? "tarjeta-valor text-danger"
-                  : "tarjeta-valor"
-              }
-            >
+            <p className={resumenMes.utilidad < 0 ? "tarjeta-valor text-danger" : "tarjeta-valor"}>
               {dinero(resumenMes.utilidad)}
             </p>
           </div>
@@ -225,11 +193,7 @@ export default function Administracion() {
               className={pestana === p ? "nav-link active" : "nav-link"}
               onClick={() => setPestana(p)}
             >
-              {p === "inventario"
-                ? "Inventario"
-                : p === "gastos"
-                  ? "Gastos"
-                  : "Reportes"}
+              {p === "inventario" ? "Inventario" : p === "gastos" ? "Gastos" : "Reportes"}
               {p === "inventario" && bajos > 0 && (
                 <span className="badge text-bg-danger ms-2">{bajos}</span>
               )}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AreaMenu, ItemMenu, MetodoPago } from "../../types";
+import type { AreaMenu, ItemMenu, MetodoPago, ItemOrden } from "../../types";
 import { AREAS, CATEGORIAS_MENU } from "../../data/constantes";
 import { useRestauranteBar } from "../../hooks/useRestauranteBar";
 import { dinero } from "../../utils/formato";
@@ -8,16 +8,18 @@ import FormularioItem from "../../components/restaurante/FormularioItem";
 import TarjetaItem from "../../components/restaurante/TarjetaItem";
 import NuevaOrden from "../../components/restaurante/NuevaOrden";
 import ListaOrdenes from "../../components/restaurante/ListaOrdenes";
-import { useInventario } from "../../hooks/useInventario";
 import { useAuth } from "../../auth/useAuth";
 
 type Pestana = "ordenes" | "menu";
 type FiltroArea = "Todas" | AreaMenu;
+type Aviso = { tipo: "success" | "danger"; texto: string };
 
-export default function Restaurante() {
+export default function RestauranteBar() {
   const {
     menu,
     ordenes,
+    cargando,
+    error,
     guardarItem,
     eliminarItem,
     cambiarDisponible,
@@ -26,15 +28,8 @@ export default function Restaurante() {
     anular,
   } = useRestauranteBar();
 
-  const { descontarVenta } = useInventario();
-
   const { usuario } = useAuth();
-
-  function alCobrar(id: number, metodo: MetodoPago) {
-    const orden = ordenes.find((o) => o.id === id);
-    cobrar(id, metodo);
-    if (orden) descontarVenta(orden.items, `Venta mesa ${orden.mesa}`);
-  }
+  const esAdmin = usuario?.rol === "Administrador";
 
   const [pestana, setPestana] = useState<Pestana>("ordenes");
   const [mesa, setMesa] = useState<number | null>(null);
@@ -42,8 +37,72 @@ export default function Restaurante() {
   const [filtroArea, setFiltroArea] = useState<FiltroArea>("Todas");
   const [categoria, setCategoria] = useState("Todas");
   const [busqueda, setBusqueda] = useState("");
+  const [aviso, setAviso] = useState<Aviso | null>(null);
 
-  // Resumen
+  function avisar(tipo: Aviso["tipo"], texto: string) {
+    setAviso({ tipo, texto });
+    setTimeout(() => setAviso(null), 6000);
+  }
+
+  function resultado(err: string | null, textoOk: string): boolean {
+    if (err) {
+      avisar("danger", err);
+      return false;
+    }
+    avisar("success", textoOk);
+    return true;
+  }
+
+  // --- ACCIONES DE ÓRDENES ---
+  async function alGuardarOrden(m: number, items: ItemOrden[], nota: string): Promise<string | null> {
+    const err = await guardarOrden(
+      m, 
+      items, 
+      nota, 
+      usuario ? { id: usuario.id, nombre: usuario.nombre } : undefined
+    );
+    resultado(err, "Orden guardada correctamente.");
+    return err;
+  }
+
+  // CORRECCIÓN: Agregamos Promise<string | null> y el return
+  async function alCobrar(id: number, metodo: MetodoPago): Promise<string | null> {
+    const err = await cobrar(id, metodo);
+    resultado(err, "Orden cobrada y stock descontado.");
+    return err;
+  }
+
+  // CORRECCIÓN: Agregamos Promise<string | null> y el return
+  async function alAnular(id: number): Promise<string | null> {
+    const err = await anular(id);
+    resultado(err, "Orden anulada correctamente.");
+    return err;
+  }
+
+  // --- ACCIONES DEL MENÚ ---
+  async function alGuardarItem(datos: Omit<ItemMenu, "id">, id?: number) {
+    const err = await guardarItem(datos, id);
+    if (resultado(err, id ? "Producto actualizado." : "Producto agregado."))
+      setEditando(null);
+  }
+
+  async function alEliminarItem(id: number) {
+    const err = await eliminarItem(id);
+    if (resultado(err, "Producto eliminado.") && editando?.id === id)
+      setEditando(null);
+  }
+
+  async function alCambiarDisponible(id: number) {
+    const err = await cambiarDisponible(id);
+    if (err) avisar("danger", err);
+  }
+
+  function alEditar(item: ItemMenu) {
+    setEditando(item);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // --- CÁLCULOS ---
   const abiertas = ordenes.filter((o) => o.estado === "Abierta");
   const cerradasHoy = ordenes.filter(
     (o) => o.estado === "Cerrada" && esDeHoy(o.fecha),
@@ -58,7 +117,6 @@ export default function Restaurante() {
     0,
   );
 
-  // Menú filtrado
   const itemsVisibles = menu
     .filter((m) => filtroArea === "Todas" || m.area === filtroArea)
     .filter((m) => categoria === "Todas" || m.categoria === categoria)
@@ -77,21 +135,6 @@ export default function Restaurante() {
     setCategoria("Todas");
   }
 
-  function alGuardarItem(datos: Omit<ItemMenu, "id">, id?: number) {
-    guardarItem(datos, id);
-    setEditando(null);
-  }
-
-  function alEliminarItem(id: number) {
-    eliminarItem(id);
-    if (editando?.id === id) setEditando(null);
-  }
-
-  function alEditar(item: ItemMenu) {
-    setEditando(item);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
   return (
     <div>
       <div className="mb-4">
@@ -100,6 +143,27 @@ export default function Restaurante() {
           Menú, pedidos por mesa y cobros en un solo lugar.
         </p>
       </div>
+
+      {aviso && (
+        <div
+          className={`alert alert-${aviso.tipo} d-flex justify-content-between align-items-center`}
+          role="alert"
+        >
+          <span>{aviso.texto}</span>
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Cerrar"
+            onClick={() => setAviso(null)}
+          ></button>
+        </div>
+      )}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+      {cargando && <p className="text-secondary">Cargando...</p>}
 
       <div className="row g-3 mb-4">
         <div className="col-sm-6 col-xl-3">
@@ -141,15 +205,17 @@ export default function Restaurante() {
             )}
           </button>
         </li>
-        <li className="nav-item">
-          <button
-            type="button"
-            className={pestana === "menu" ? "nav-link active" : "nav-link"}
-            onClick={() => setPestana("menu")}
-          >
-            Menú <span className="badge text-bg-secondary">{menu.length}</span>
-          </button>
-        </li>
+        {esAdmin && (
+          <li className="nav-item">
+            <button
+              type="button"
+              className={pestana === "menu" ? "nav-link active" : "nav-link"}
+              onClick={() => setPestana("menu")}
+            >
+              Menú <span className="badge text-bg-secondary">{menu.length}</span>
+            </button>
+          </li>
+        )}
       </ul>
 
       {pestana === "ordenes" ? (
@@ -160,23 +226,15 @@ export default function Restaurante() {
               mesa={mesa}
               mesasOcupadas={abiertas.map((o) => o.mesa)}
               onMesaChange={setMesa}
-              onGuardar={(m, items, nota) =>
-                guardarOrden(
-                  m,
-                  items,
-                  nota,
-                  usuario
-                    ? { id: usuario.id, nombre: usuario.nombre }
-                    : undefined,
-                )
-              }
+              onGuardar={alGuardarOrden}
             />
           </div>
           <div className="col-lg-7">
             <ListaOrdenes
               ordenes={ordenes}
               onCobrar={alCobrar}
-              onAnular={anular}
+              onAnular={alAnular}
+              puedeAnular={esAdmin}
             />
           </div>
         </div>
@@ -248,7 +306,7 @@ export default function Restaurante() {
                       item={m}
                       onEditar={alEditar}
                       onEliminar={alEliminarItem}
-                      onCambiarDisponible={cambiarDisponible}
+                      onCambiarDisponible={alCambiarDisponible}
                     />
                   </div>
                 ))}

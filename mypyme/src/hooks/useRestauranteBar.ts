@@ -1,155 +1,128 @@
-import { useLocalStorage } from "./useLocalStorage";
-import { menuInicial } from "../data/datosPrueba";
-import type { ItemMenu, ItemOrden, MetodoPago, Orden } from "../types";
+import { useCallback, useEffect, useState } from "react";
+import { menuService, ordenService } from "../services/restauranteService";
+import { intentar, mensajeError } from "../utils/api";
+import type {
+  ItemMenu,
+  ItemMenuCreate,
+  Orden,
+  OrdenCreate,
+  MetodoPago,
+  ItemOrden,
+} from "../types";
 
-interface ItemViejo {
-  id: number;
-  nombre: string;
-  categoria?: string;
-  precio: number;
-  descripcion: string;
-  foto: string;
-}
-
-function leer(clave: string): { existe: boolean; datos: ItemViejo[] } {
-  try {
-    const guardado = localStorage.getItem(clave);
-    return {
-      existe: guardado !== null,
-      datos: guardado ? JSON.parse(guardado) : [],
-    };
-  } catch {
-    return { existe: false, datos: [] };
-  }
-}
-
-function crearMenuInicial(): ItemMenu[] {
-  const platos = leer("mypyme_platos");
-  const bebidas = leer("mypyme_bebidas");
-  if (!platos.existe && bebidas.datos.length === 0) return menuInicial;
-
-  return [
-    ...platos.datos.map((p) => ({
-      ...p,
-      area: "Restaurante" as const,
-      categoria: p.categoria ?? "Platos fuertes",
-      disponible: true,
-    })),
-    ...bebidas.datos.map((b) => ({
-      ...b,
-      area: "Bar" as const,
-      categoria: "Otras bebidas",
-      disponible: true,
-    })),
-  ];
-}
-
-function normalizarOrdenes(ordenes: Orden[]): Orden[] {
-  return ordenes.map((o) => ({
-    ...o,
-    nota: o.nota ?? "",
-    items: o.items.map((i) => {
-      const viejo = i as ItemOrden & { platoId?: number };
-      return {
-        ...i,
-        itemId: i.itemId ?? viejo.platoId ?? 0,
-        area: i.area ?? "Restaurante",
-      };
-    }),
-  }));
-}
+// Convierte el JSON del backend (detalles) al formato del frontend (items)
+const normalizarOrden = (o: any): Orden => ({
+  id: o.id,
+  mesa: o.mesa,
+  fecha: o.fecha,
+  nota: o.nota ?? "",
+  estado: o.estado,
+  metodoPago: o.metodoPago,
+  vendedorId: o.vendedorId,
+  vendedor: o.vendedorNombre,
+  // Forzamos el tipado de retorno a ItemOrden para que TypeScript esté feliz
+  items: (o.detalles || []).map((d: any): ItemOrden => ({
+    itemId: d.itemMenuId,
+    nombre: d.itemMenuNombre || "Sin nombre", // Previene que sea undefined
+    area: d.area,
+    precio: d.precioUnitario || 0,
+    cantidad: d.cantidad || 1,
+  })),
+});
 
 export function useRestauranteBar() {
-  const [menu, setMenu] = useLocalStorage<ItemMenu[]>(
-    "mypyme_menu",
-    crearMenuInicial,
-  );
-  const [ordenes, setOrdenes] = useLocalStorage<Orden[]>(
-    "mypyme_ordenes",
-    [],
-    normalizarOrdenes,
-  );
+  const [menu, setMenu] = useState<ItemMenu[]>([]);
+  const [ordenes, setOrdenes] = useState<Orden[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  function guardarItem(datos: Omit<ItemMenu, "id">, id?: number) {
-    if (id) {
-      setMenu((prev) => prev.map((m) => (m.id === id ? { ...datos, id } : m)));
-    } else {
-      setMenu((prev) => [...prev, { ...datos, id: Date.now() }]);
+  const recargar = useCallback(async () => {
+    try {
+      setError(null);
+      const [m, o] = await Promise.all([
+        menuService.listar(),
+        ordenService.listar(),
+      ]);
+      setMenu(m);
+      setOrdenes(o.map(normalizarOrden));
+    } catch (e) {
+      setError(mensajeError(e));
+    } finally {
+      setCargando(false);
     }
+  }, []);
+
+  useEffect(() => {
+    void recargar();
+  }, [recargar]);
+
+  function guardarItem(datos: ItemMenuCreate, id?: number) {
+    return intentar(async () => {
+      if (id) await menuService.actualizar(id, datos);
+      else await menuService.crear(datos);
+      await recargar();
+    });
   }
 
   function eliminarItem(id: number) {
-    setMenu((prev) => prev.filter((m) => m.id !== id));
+    return intentar(async () => {
+      await menuService.eliminar(id);
+      await recargar();
+    });
   }
 
   function cambiarDisponible(id: number) {
-    setMenu((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, disponible: !m.disponible } : m)),
-    );
+    return intentar(async () => {
+      const item = menu.find((m) => m.id === id);
+      if (!item) throw new Error("Ítem no encontrado");
+      await menuService.actualizar(id, { ...item, disponible: !item.disponible });
+      await recargar();
+    });
   }
 
   function guardarOrden(
     mesa: number,
-    items: ItemOrden[],
+    items: ItemOrden[], // CORREGIDO: Ya no es any[], ahora es ItemOrden[]
     nota: string,
-    vendedor?: { id: number; nombre: string },
+    vendedor?: { id: number; nombre: string }
   ) {
-    setOrdenes((prev) => {
-      const abierta = prev.find(
-        (o) => o.mesa === mesa && o.estado === "Abierta",
-      );
-
-      if (!abierta) {
-        const nueva: Orden = {
-          id: Date.now(),
-          mesa,
-          fecha: new Date().toISOString(),
-          items,
-          nota: nota.trim(),
-          estado: "Abierta",
-          vendedorId: vendedor?.id,
-          vendedor: vendedor?.nombre,
-        };
-        return [...prev, nueva];
-      }
-
-      return prev.map((o) => {
-        if (o.id !== abierta.id) return o;
-        const combinados = [...o.items];
-        items.forEach((nuevo) => {
-          const pos = combinados.findIndex((x) => x.itemId === nuevo.itemId);
-          if (pos >= 0) {
-            combinados[pos] = {
-              ...combinados[pos],
-              cantidad: combinados[pos].cantidad + nuevo.cantidad,
-            };
-          } else {
-            combinados.push(nuevo);
-          }
-        });
-        const notas = [o.nota, nota.trim()].filter(Boolean).join(" · ");
-        return { ...o, items: combinados, nota: notas };
-      });
+    return intentar(async () => {
+      const body: OrdenCreate = {
+        mesa,
+        nota: nota.trim(),
+        vendedorId: vendedor?.id,
+        detalles: items.map((i) => ({
+          itemMenuId: i.itemId,
+          cantidad: i.cantidad,
+          precioUnitario: i.precio,
+          area: i.area,
+        })),
+      };
+      await ordenService.crear(body);
+      await recargar();
     });
   }
 
   function cobrar(id: number, metodoPago: MetodoPago) {
-    setOrdenes((prev) =>
-      prev.map((o) =>
-        o.id === id ? { ...o, estado: "Cerrada", metodoPago } : o,
-      ),
-    );
+    return intentar(async () => {
+      await ordenService.cobrar(id, metodoPago);
+      await recargar();
+    });
   }
 
   function anular(id: number) {
-    setOrdenes((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, estado: "Anulada" } : o)),
-    );
+    return intentar(async () => {
+      await ordenService.anular(id);
+      await recargar();
+    });
   }
 
   return {
     menu,
     ordenes,
+    cargando,
+    error,
+    recargar,
     guardarItem,
     eliminarItem,
     cambiarDisponible,
