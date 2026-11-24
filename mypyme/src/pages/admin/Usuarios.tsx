@@ -7,13 +7,7 @@ import TablaUsuarios from "../../components/usuarios/TablaUsuarios";
 type Aviso = { tipo: "success" | "danger"; texto: string };
 
 export default function Usuarios() {
-  const {
-    usuario,
-    usuarios,
-    crearUsuario,
-    actualizarUsuario,
-    eliminarUsuario,
-  } = useAuth();
+  const { usuario, usuarios, crearUsuario, actualizarUsuario, eliminarUsuario } = useAuth();
   const [editando, setEditando] = useState<Usuario | null>(null);
   const [aviso, setAviso] = useState<Aviso | null>(null);
 
@@ -34,7 +28,7 @@ export default function Usuarios() {
         )
       : await crearUsuario({
           nombre: datos.nombre,
-          usuario: datos.usuario,
+          nombreUsuario: datos.nombreUsuario, // Ya está corregido aquí
           rol: datos.rol,
           clave: datos.clave,
         });
@@ -43,22 +37,18 @@ export default function Usuarios() {
     setEditando(null);
     avisar(
       "success",
-      id
-        ? `Usuario "${datos.nombre}" actualizado.`
-        : `Usuario "${datos.nombre}" creado.`,
+      id ? `Usuario "${datos.nombre}" actualizado.` : `Usuario "${datos.nombre}" creado.`,
     );
     return null;
   }
 
-  function eliminar(u: Usuario) {
-    if (
-      !window.confirm(
-        `¿Eliminar al usuario "${u.nombre}"? Esta acción no se puede deshacer.`,
-      )
-    )
-      return;
-    const error = eliminarUsuario(u.id);
+  // CORRECCIÓN: Ahora es async y usa await
+  async function eliminar(u: Usuario) {
+    if (!window.confirm(`¿Eliminar al usuario "${u.nombre}"? Esta acción no se puede deshacer.`)) return;
+    
+    const error = await eliminarUsuario(u.id); 
     if (error) return avisar("danger", error);
+    
     if (editando?.id === u.id) setEditando(null);
     avisar("success", `Usuario "${u.nombre}" eliminado.`);
   }
@@ -68,9 +58,7 @@ export default function Usuarios() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const administradores = usuarios.filter(
-    (u) => u.rol === "Administrador",
-  ).length;
+  const administradores = usuarios.filter((u) => u.rol === "Administrador").length;
   const vendedores = usuarios.filter((u) => u.rol === "Vendedor").length;
 
   return (
@@ -79,24 +67,15 @@ export default function Usuarios() {
         <h1 className="mb-1">Usuarios</h1>
         <p className="text-secondary mb-0">
           {usuarios.length} {usuarios.length === 1 ? "usuario" : "usuarios"} ·{" "}
-          {administradores}{" "}
-          {administradores === 1 ? "administrador" : "administradores"} ·{" "}
+          {administradores} {administradores === 1 ? "administrador" : "administradores"} ·{" "}
           {vendedores} {vendedores === 1 ? "vendedor" : "vendedores"}
         </p>
       </div>
 
       {aviso && (
-        <div
-          className={`alert alert-${aviso.tipo} d-flex justify-content-between align-items-center`}
-          role="alert"
-        >
+        <div className={`alert alert-${aviso.tipo} d-flex justify-content-between align-items-center`} role="alert">
           <span>{aviso.texto}</span>
-          <button
-            type="button"
-            className="btn-close"
-            aria-label="Cerrar"
-            onClick={() => setAviso(null)}
-          ></button>
+          <button type="button" className="btn-close" aria-label="Cerrar" onClick={() => setAviso(null)}></button>
         </div>
       )}
 

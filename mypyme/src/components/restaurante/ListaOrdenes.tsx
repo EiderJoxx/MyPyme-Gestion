@@ -43,6 +43,11 @@ export default function ListaOrdenes({
     if (err) setError(err);
   }
 
+  const calcularTotal = (orden: Orden) => {
+    if (!orden.items) return 0;
+    return orden.items.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+  };
+
   return (
     <div>
       <div className="d-flex flex-wrap gap-2 mb-3">
@@ -90,23 +95,27 @@ export default function ListaOrdenes({
                       timeStyle: "short",
                     })}
                   </p>
-                  {o.vendedorNombre && (
+                  
+                  {/* Cambiado a o.vendedor */}
+                  {o.vendedor && (
                     <p className="small text-secondary mb-2">
-                      Vendedor: {o.vendedorNombre}
+                      Vendedor: {o.vendedor}
                     </p>
                   )}
 
                   <ul className="list-unstyled small mb-2">
-                    {o.detalles.map((d) => (
+                    {/* Cambiado a o.items con validación por si viene undefined */}
+                    {(o.items || []).map((d) => (
                       <li
-                        key={d.id}
+                        key={d.itemId}
                         className="d-flex justify-content-between"
                       >
                         <span>
                           {d.area === "Bar" ? "🍹" : "🍽️"} {d.cantidad} ×{" "}
-                          {d.itemMenuNombre ?? "Item eliminado"}
+                          {d.nombre || "Item eliminado"}
                         </span>
-                        <span>{dinero(d.subtotal)}</span>
+                        {/* Calculamos el subtotal dinámicamente */}
+                        <span>{dinero(d.precio * d.cantidad)}</span>
                       </li>
                     ))}
                   </ul>
@@ -119,7 +128,8 @@ export default function ListaOrdenes({
 
                   <div className="d-flex justify-content-between fw-semibold border-top pt-2 mb-3">
                     <span>Total</span>
-                    <span>{dinero(o.total)}</span>
+                    {/* Calculamos el total dinámicamente */}
+                    <span>{dinero(calcularTotal(o))}</span>
                   </div>
 
                   {o.estado === "Cerrada" && o.metodoPago && (

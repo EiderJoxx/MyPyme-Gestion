@@ -15,7 +15,8 @@ type Pestana = "pedidos" | "disponibilidad";
 export default function Ventas() {
   const { usuario } = useAuth();
   const { menu, ordenes, guardarOrden, cobrar } = useRestauranteBar();
-  const { insumos, descontarVenta } = useInventario();
+  const { insumos } = useInventario();
+  
   const [pestana, setPestana] = useState<Pestana>("pedidos");
   const [mesa, setMesa] = useState<number | null>(null);
 
@@ -35,10 +36,10 @@ export default function Ventas() {
   );
   const totalHoy = misVentasHoy.reduce((suma, o) => suma + totalOrden(o), 0);
 
-  function alCobrar(id: number, metodo: MetodoPago) {
-    const orden = ordenes.find((o) => o.id === id);
-    cobrar(id, metodo);
-    if (orden) descontarVenta(orden.items, `Venta mesa ${orden.mesa}`);
+  // CORRECCIÓN 2: Hacemos la función async y devolvemos el string | null
+  async function alCobrar(id: number, metodo: MetodoPago): Promise<string | null> {
+    // El backend descuenta el stock automáticamente, solo cobramos
+    return await cobrar(id, metodo);
   }
 
   return (
@@ -116,7 +117,8 @@ export default function Ventas() {
             <ListaOrdenes
               ordenes={visibles}
               onCobrar={alCobrar}
-              onAnular={() => {}}
+              // CORRECCIÓN 3: Le pasamos una promesa nula ya que aquí no se permite anular
+              onAnular={async () => null}
               puedeAnular={false}
             />
           </div>

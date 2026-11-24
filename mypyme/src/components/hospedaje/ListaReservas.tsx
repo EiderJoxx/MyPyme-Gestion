@@ -65,6 +65,11 @@ export default function ListaReservas({
   const [busqueda, setBusqueda] = useState("");
   const hoy = hoyISO();
 
+  // Estados para el formulario de abono en línea
+  const [abonando, setAbonando] = useState<{ r: Reserva; saldo: number } | null>(null);
+  const [montoAbono, setMontoAbono] = useState("");
+  const [errorAbono, setErrorAbono] = useState("");
+
   const numeroHab = (id: number) =>
     habitaciones.find((h) => h.id === id)?.numero ?? "?";
   const tipoHab = (id: number) =>
@@ -85,16 +90,17 @@ export default function ListaReservas({
         : b.checkIn.localeCompare(a.checkIn),
     );
 
-  function abonar(r: Reserva, saldo: number) {
-    const entrada = window.prompt(
-      `Monto del abono (saldo pendiente: ${dinero(saldo)})`,
-    );
-    if (entrada === null) return;
-    const monto = Number(entrada.replace(/[^\d]/g, ""));
-    if (!monto) return window.alert("Escribe un monto válido");
-    if (monto > saldo)
-      return window.alert("El abono supera el saldo pendiente");
-    onAbonar(r, monto);
+  function guardarAbono() {
+    if (!abonando) return;
+    const monto = Number(montoAbono.replace(/[^\d]/g, ""));
+    
+    if (!monto) return setErrorAbono("Escribe un monto válido");
+    if (monto > abonando.saldo) return setErrorAbono("El abono supera el saldo pendiente");
+    
+    onAbonar(abonando.r, monto);
+    setAbonando(null);
+    setMontoAbono("");
+    setErrorAbono("");
   }
 
   return (
@@ -201,6 +207,37 @@ export default function ListaReservas({
                       </div>
                     </div>
 
+                    {/* FORMULARIO DE ABONO EN LÍNEA */}
+                    {abonando?.r.id === r.id && (
+                      <div className="bg-light p-3 rounded mb-3 border">
+                        <p className="small fw-bold mb-2">Registrar abono</p>
+                        {errorAbono && <div className="alert alert-danger py-1 small mb-2">{errorAbono}</div>}
+                        <div className="d-flex gap-2">
+                          <input
+                            type="number"
+                            className="form-control form-control-sm"
+                            placeholder={`Máx. ${dinero(abonando.saldo)}`}
+                            value={montoAbono}
+                            onChange={(e) => {
+                              setMontoAbono(e.target.value);
+                              setErrorAbono("");
+                            }}
+                            autoFocus
+                          />
+                          <button className="btn btn-success btn-sm" onClick={guardarAbono}>
+                            Guardar
+                          </button>
+                          <button className="btn btn-outline-secondary btn-sm" onClick={() => {
+                            setAbonando(null);
+                            setErrorAbono("");
+                            setMontoAbono("");
+                          }}>
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {activa && (
                       <div className="d-flex flex-wrap gap-2 mt-auto">
                         {r.estado === "Pendiente" && (
@@ -233,10 +270,14 @@ export default function ListaReservas({
                             Check-out
                           </button>
                         )}
-                        {saldo > 0 && (
+                        
+                        {saldo > 0 && !abonando && (
                           <button
                             className="btn btn-outline-secondary btn-sm"
-                            onClick={() => abonar(r, saldo)}
+                            onClick={() => {
+                              setAbonando({ r, saldo });
+                              setMontoAbono(saldo.toString());
+                            }}
                           >
                             Registrar abono
                           </button>

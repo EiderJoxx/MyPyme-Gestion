@@ -7,15 +7,8 @@ interface Props {
   onEliminar: (u: Usuario) => void;
 }
 
-export default function TablaUsuarios({
-  usuarios,
-  actualId,
-  onEditar,
-  onEliminar,
-}: Props) {
-  const ordenados = [...usuarios].sort((a, b) =>
-    a.nombre.localeCompare(b.nombre),
-  );
+export default function TablaUsuarios({ usuarios, actualId, onEditar, onEliminar }: Props) {
+  const ordenados = [...usuarios].sort((a, b) => a.nombre.localeCompare(b.nombre));
 
   return (
     <div className="card shadow-sm">
@@ -36,30 +29,17 @@ export default function TablaUsuarios({
               <tr key={u.id}>
                 <td className="fw-semibold">
                   {u.nombre}{" "}
-                  {u.id === actualId && (
-                    <span className="badge text-bg-light border">Tú</span>
-                  )}
+                  {u.id === actualId && <span className="badge text-bg-light border">Tú</span>}
                 </td>
-                <td>{u.usuario}</td>
+                {/* CORRECCIÓN: Mostramos nombreUsuario */}
+                <td>{u.nombreUsuario}</td>
                 <td>
-                  <span
-                    className={
-                      u.rol === "Administrador"
-                        ? "badge text-bg-dark"
-                        : "badge text-bg-info"
-                    }
-                  >
+                  <span className={u.rol === "Administrador" ? "badge text-bg-dark" : "badge text-bg-info"}>
                     {u.rol}
                   </span>
                 </td>
                 <td>
-                  <span
-                    className={
-                      u.activo
-                        ? "badge text-bg-success"
-                        : "badge text-bg-secondary"
-                    }
-                  >
+                  <span className={u.activo ? "badge text-bg-success" : "badge text-bg-secondary"}>
                     {u.activo ? "Activo" : "Inactivo"}
                   </span>
                 </td>
@@ -67,16 +47,10 @@ export default function TablaUsuarios({
                   {new Date(u.creado).toLocaleDateString("es-CO")}
                 </td>
                 <td className="text-end text-nowrap">
-                  <button
-                    className="btn btn-outline-secondary btn-sm me-1"
-                    onClick={() => onEditar(u)}
-                  >
+                  <button className="btn btn-outline-secondary btn-sm me-1" onClick={() => onEditar(u)}>
                     Editar
                   </button>
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    onClick={() => onEliminar(u)}
-                  >
+                  <button className="btn btn-outline-danger btn-sm" onClick={() => onEliminar(u)}>
                     Eliminar
                   </button>
                 </td>

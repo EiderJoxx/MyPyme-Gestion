@@ -11,7 +11,13 @@ export interface LoginRequest {
   nombreUsuario: string;
   clave: string;
 }
-
+export interface DatosFormularioUsuario {
+  nombre: string;
+  nombreUsuario: string; // <-- Debe decir nombreUsuario
+  rol: Rol;
+  activo: boolean;
+  clave: string;
+}
 export interface LoginRespuesta {
   token: string;
   expira: string;
@@ -33,6 +39,8 @@ export interface Usuario {
   nombreUsuario: string;
   rol: Rol;
   activo: boolean;
+  salt: string;
+  hash: string;
   creado: string;
 }
 

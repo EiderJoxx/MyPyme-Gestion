@@ -14,10 +14,12 @@ export const ordenService = {
   listar: () => api<Orden[]>("/Ordenes"),
   crear: (o: OrdenCreate) =>
     api<Orden>("/Ordenes", { method: "POST", body: JSON.stringify(o) }),
+    
   cobrar: (id: number, metodoPago: MetodoPago) =>
     api<void>(`/Ordenes/${id}/cobrar`, {
-      method: "PUT",
-      body: JSON.stringify(metodoPago),
+      method: "POST",
+      body: JSON.stringify({ metodoPago }),
     }),
-  anular: (id: number) => api<void>(`/Ordenes/${id}/anular`, { method: "PUT" }),
+    
+  anular: (id: number) => api<void>(`/Ordenes/${id}/anular`, { method: "POST" }),
 };

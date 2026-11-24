@@ -4,20 +4,14 @@ import { DESCRIPCION_ROL, ROLES } from "../../auth/permisos";
 
 interface Props {
   editando: Usuario | null;
-  onGuardar: (
-    datos: DatosFormularioUsuario,
-    id?: number,
-  ) => Promise<string | null>;
+  onGuardar: (datos: DatosFormularioUsuario, id?: number) => Promise<string | null>;
   onCancelar: () => void;
 }
 
-export default function FormularioUsuario({
-  editando,
-  onGuardar,
-  onCancelar,
-}: Props) {
+export default function FormularioUsuario({ editando, onGuardar, onCancelar }: Props) {
   const [nombre, setNombre] = useState(editando?.nombre ?? "");
-  const [usuario, setUsuario] = useState(editando?.usuario ?? "");
+  // CORRECCIÓN: Usamos nombreUsuario
+  const [nombreUsuario, setNombreUsuario] = useState(editando?.nombreUsuario ?? "");
   const [rol, setRol] = useState<Rol>(editando?.rol ?? "Vendedor");
   const [activo, setActivo] = useState(editando?.activo ?? true);
   const [clave, setClave] = useState("");
@@ -33,8 +27,9 @@ export default function FormularioUsuario({
       return setError("Escribe una contraseña para el nuevo usuario");
 
     setEnviando(true);
+    // CORRECCIÓN: Enviamos nombreUsuario
     const mensaje = await onGuardar(
-      { nombre, usuario, rol, activo, clave },
+      { nombre, nombreUsuario, rol, activo, clave },
       editando?.id,
     );
     setEnviando(false);
@@ -42,7 +37,7 @@ export default function FormularioUsuario({
 
     if (!editando) {
       setNombre("");
-      setUsuario("");
+      setNombreUsuario("");
       setRol("Vendedor");
       setClave("");
       setConfirmar("");
@@ -56,16 +51,10 @@ export default function FormularioUsuario({
           {editando ? `Editar a ${editando.nombre}` : "Nuevo usuario"}
         </h2>
 
-        {error && (
-          <div className="alert alert-danger py-2 mb-0" role="alert">
-            {error}
-          </div>
-        )}
+        {error && <div className="alert alert-danger py-2 mb-0" role="alert">{error}</div>}
 
         <div>
-          <label htmlFor="usu-nombre" className="form-label">
-            Nombre completo
-          </label>
+          <label htmlFor="usu-nombre" className="form-label">Nombre completo</label>
           <input
             id="usu-nombre"
             className="form-control"
@@ -75,24 +64,20 @@ export default function FormularioUsuario({
         </div>
 
         <div>
-          <label htmlFor="usu-usuario" className="form-label">
-            Usuario para ingresar
-          </label>
+          <label htmlFor="usu-usuario" className="form-label">Usuario para ingresar</label>
           <input
             id="usu-usuario"
             className="form-control"
-            value={usuario}
+            value={nombreUsuario}
             disabled={!!editando}
-            onChange={(e) => setUsuario(e.target.value)}
+            onChange={(e) => setNombreUsuario(e.target.value)}
             placeholder="Ej: maria"
             autoComplete="off"
           />
         </div>
 
         <div>
-          <label htmlFor="usu-rol" className="form-label">
-            Rol
-          </label>
+          <label htmlFor="usu-rol" className="form-label">Rol</label>
           <select
             id="usu-rol"
             className="form-select"
@@ -121,9 +106,7 @@ export default function FormularioUsuario({
         </div>
 
         <div>
-          <label htmlFor="usu-confirmar" className="form-label">
-            Confirmar contraseña
-          </label>
+          <label htmlFor="usu-confirmar" className="form-label">Confirmar contraseña</label>
           <input
             id="usu-confirmar"
             type="password"
@@ -145,30 +128,16 @@ export default function FormularioUsuario({
               checked={activo}
               onChange={(e) => setActivo(e.target.checked)}
             />
-            <label className="form-check-label" htmlFor="usu-activo">
-              Cuenta activa
-            </label>
+            <label className="form-check-label" htmlFor="usu-activo">Cuenta activa</label>
           </div>
         )}
 
         <div className="d-flex gap-2">
-          <button
-            type="submit"
-            className="btn btn-primary flex-grow-1"
-            disabled={enviando}
-          >
-            {enviando
-              ? "Guardando..."
-              : editando
-                ? "Guardar cambios"
-                : "Crear usuario"}
+          <button type="submit" className="btn btn-primary flex-grow-1" disabled={enviando}>
+            {enviando ? "Guardando..." : editando ? "Guardar cambios" : "Crear usuario"}
           </button>
           {editando && (
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={onCancelar}
-            >
+            <button type="button" className="btn btn-outline-secondary" onClick={onCancelar}>
               Cancelar
             </button>
           )}
