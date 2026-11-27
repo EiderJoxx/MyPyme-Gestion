@@ -1,5 +1,5 @@
 
-export type Rol = "Administrador" | "Vendedor";
+export type Rol = "SuperAdmin" | "Administrador" | "Vendedor";
 export type EstadoHabitacion = "Disponible" | "Ocupada" | "Limpieza" | "Mantenimiento";
 export type EstadoReserva = "Pendiente" | "Confirmada" | "CheckIn" | "CheckOut" | "Cancelada";
 export type AreaMenu = "Restaurante" | "Bar";
@@ -13,10 +13,11 @@ export interface LoginRequest {
 }
 export interface DatosFormularioUsuario {
   nombre: string;
-  nombreUsuario: string; // <-- Debe decir nombreUsuario
+  nombreUsuario: string; 
   rol: Rol;
   activo: boolean;
   clave: string;
+  llaveSeguridad? : string;
 }
 export interface LoginRespuesta {
   token: string;

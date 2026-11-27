@@ -1,4 +1,5 @@
 import type { Usuario } from "../../types";
+import { useAuth } from "../../auth/useAuth"; 
 
 interface Props {
   usuarios: Usuario[];
@@ -7,8 +8,17 @@ interface Props {
   onEliminar: (u: Usuario) => void;
 }
 
-export default function TablaUsuarios({ usuarios, actualId, onEditar, onEliminar }: Props) {
-  const ordenados = [...usuarios].sort((a, b) => a.nombre.localeCompare(b.nombre));
+export default function TablaUsuarios({
+  usuarios,
+  actualId,
+  onEditar,
+  onEliminar,
+}: Props) {
+  const { usuario: usuarioActual } = useAuth(); 
+
+  const ordenados = [...usuarios].sort((a, b) =>
+    a.nombre.localeCompare(b.nombre),
+  );
 
   return (
     <div className="card shadow-sm">
@@ -25,37 +35,70 @@ export default function TablaUsuarios({ usuarios, actualId, onEditar, onEliminar
             </tr>
           </thead>
           <tbody>
-            {ordenados.map((u) => (
-              <tr key={u.id}>
-                <td className="fw-semibold">
-                  {u.nombre}{" "}
-                  {u.id === actualId && <span className="badge text-bg-light border">Tú</span>}
-                </td>
-                {/* CORRECCIÓN: Mostramos nombreUsuario */}
-                <td>{u.nombreUsuario}</td>
-                <td>
-                  <span className={u.rol === "Administrador" ? "badge text-bg-dark" : "badge text-bg-info"}>
-                    {u.rol}
-                  </span>
-                </td>
-                <td>
-                  <span className={u.activo ? "badge text-bg-success" : "badge text-bg-secondary"}>
-                    {u.activo ? "Activo" : "Inactivo"}
-                  </span>
-                </td>
-                <td className="small text-secondary">
-                  {new Date(u.creado).toLocaleDateString("es-CO")}
-                </td>
-                <td className="text-end text-nowrap">
-                  <button className="btn btn-outline-secondary btn-sm me-1" onClick={() => onEditar(u)}>
-                    Editar
-                  </button>
-                  <button className="btn btn-outline-danger btn-sm" onClick={() => onEliminar(u)}>
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {ordenados.map((u) => {
+              const esAdminNormal = usuarioActual?.rol === "Administrador";
+              const objetivoEsSuperAdmin = u.rol === "SuperAdmin";
+              const puedeGestionar = !(esAdminNormal && objetivoEsSuperAdmin);
+
+              return (
+                <tr key={u.id}>
+                  <td className="fw-semibold">
+                    {u.nombre}{" "}
+                    {u.id === actualId && (
+                      <span className="badge text-bg-light border">Tú</span>
+                    )}
+                  </td>
+                  <td>{u.nombreUsuario}</td>
+                  <td>
+                    <span
+                      className={
+                        u.rol === "SuperAdmin"
+                          ? "badge text-bg-danger" 
+                          : u.rol === "Administrador"
+                          ? "badge text-bg-dark"
+                          : "badge text-bg-info"
+                      }
+                    >
+                      {u.rol}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={
+                        u.activo
+                          ? "badge text-bg-success"
+                          : "badge text-bg-secondary"
+                      }
+                    >
+                      {u.activo ? "Activo" : "Inactivo"}
+                    </span>
+                  </td>
+                  <td className="small text-secondary">
+                    {new Date(u.creado).toLocaleDateString("es-CO")}
+                  </td>
+                  <td className="text-end text-nowrap">
+                    {puedeGestionar ? (
+                      <>
+                        <button
+                          className="btn btn-outline-secondary btn-sm me-1"
+                          onClick={() => onEditar(u)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          className="btn btn-outline-danger btn-sm"
+                          onClick={() => onEliminar(u)}
+                        >
+                          Eliminar
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-muted small me-2">🔒 Protegido</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

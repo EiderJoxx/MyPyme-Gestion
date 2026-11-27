@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { DatosFormularioUsuario, Rol, Usuario } from "../../types";
 import { DESCRIPCION_ROL, ROLES } from "../../auth/permisos";
+import { useAuth } from "../../auth/useAuth";
 
 interface Props {
   editando: Usuario | null;
@@ -9,27 +10,37 @@ interface Props {
 }
 
 export default function FormularioUsuario({ editando, onGuardar, onCancelar }: Props) {
+  const { usuario: usuarioActual } = useAuth(); 
+  
   const [nombre, setNombre] = useState(editando?.nombre ?? "");
-  // CORRECCIÓN: Usamos nombreUsuario
   const [nombreUsuario, setNombreUsuario] = useState(editando?.nombreUsuario ?? "");
   const [rol, setRol] = useState<Rol>(editando?.rol ?? "Vendedor");
   const [activo, setActivo] = useState(editando?.activo ?? true);
   const [clave, setClave] = useState("");
   const [confirmar, setConfirmar] = useState("");
+  const [llaveSeguridad, setLlaveSeguridad] = useState(""); 
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
+
+  const rolesDisponibles = ROLES.filter((r) => {
+    if (usuarioActual?.rol === "SuperAdmin") return true;
+    return r === "Vendedor"; 
+  });
 
   async function alEnviar(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    
     if (clave !== confirmar) return setError("Las contraseñas no coinciden");
-    if (!editando && !clave)
-      return setError("Escribe una contraseña para el nuevo usuario");
+    if (!editando && !clave) return setError("Escribe una contraseña para el nuevo usuario");
+    
+    if ((rol === "Administrador" || rol === "SuperAdmin") && !llaveSeguridad) {
+      return setError("La llave de seguridad es obligatoria.");
+    }
 
     setEnviando(true);
-    // CORRECCIÓN: Enviamos nombreUsuario
     const mensaje = await onGuardar(
-      { nombre, nombreUsuario, rol, activo, clave },
+      { nombre, nombreUsuario, rol, activo, clave, llaveSeguridad },
       editando?.id,
     );
     setEnviando(false);
@@ -41,6 +52,7 @@ export default function FormularioUsuario({ editando, onGuardar, onCancelar }: P
       setRol("Vendedor");
       setClave("");
       setConfirmar("");
+      setLlaveSeguridad(""); 
     }
   }
 
@@ -83,13 +95,30 @@ export default function FormularioUsuario({ editando, onGuardar, onCancelar }: P
             className="form-select"
             value={rol}
             onChange={(e) => setRol(e.target.value as Rol)}
+            disabled={rolesDisponibles.length === 1} 
           >
-            {ROLES.map((r) => (
-              <option key={r}>{r}</option>
+            {rolesDisponibles.map((r) => (
+              <option key={r} value={r}>{r}</option>
             ))}
           </select>
           <small className="text-secondary">{DESCRIPCION_ROL[rol]}</small>
         </div>
+
+        {(rol === "Administrador" || rol === "SuperAdmin") && usuarioActual?.rol === "SuperAdmin" && (
+          <div className="p-3 bg-light border border-warning rounded shadow-sm">
+            <label htmlFor="usu-llave" className="form-label text-danger fw-bold">
+              Llave de Seguridad (SuperAdmin)
+            </label>
+            <input
+              id="usu-llave"
+              type="password"
+              className="form-control"
+              value={llaveSeguridad}
+              onChange={(e) => setLlaveSeguridad(e.target.value)}
+              placeholder="Ingresa el código secreto"
+            />
+          </div>
+        )}
 
         <div>
           <label htmlFor="usu-clave" className="form-label">
@@ -101,7 +130,6 @@ export default function FormularioUsuario({ editando, onGuardar, onCancelar }: P
             className="form-control"
             value={clave}
             onChange={(e) => setClave(e.target.value)}
-            autoComplete="new-password"
           />
         </div>
 
@@ -113,9 +141,7 @@ export default function FormularioUsuario({ editando, onGuardar, onCancelar }: P
             className="form-control"
             value={confirmar}
             onChange={(e) => setConfirmar(e.target.value)}
-            autoComplete="new-password"
           />
-          <small className="text-secondary">Mínimo 8 caracteres.</small>
         </div>
 
         {editando && (
@@ -123,7 +149,6 @@ export default function FormularioUsuario({ editando, onGuardar, onCancelar }: P
             <input
               className="form-check-input"
               type="checkbox"
-              role="switch"
               id="usu-activo"
               checked={activo}
               onChange={(e) => setActivo(e.target.checked)}
@@ -132,7 +157,7 @@ export default function FormularioUsuario({ editando, onGuardar, onCancelar }: P
           </div>
         )}
 
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 mt-2">
           <button type="submit" className="btn btn-primary flex-grow-1" disabled={enviando}>
             {enviando ? "Guardando..." : editando ? "Guardar cambios" : "Crear usuario"}
           </button>

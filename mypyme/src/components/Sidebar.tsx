@@ -15,13 +15,29 @@ export default function Sidebar() {
   const { usuario, cerrarSesion } = useAuth();
   if (!usuario) return null;
 
-  const visibles = ENLACES.filter((e) => puedeVer(usuario.rol, e.ruta));
+  const esSuperAdmin = usuario.rol === "SuperAdmin";
+
+  // Si es SuperAdmin, solo le mostramos la ruta de Usuarios. 
+  // Si es cualquier otro, usamos la lógica de permisos normal.
+  const visibles = ENLACES.filter((e) => {
+    if (esSuperAdmin) {
+      return e.ruta === "/admin/usuarios";
+    }
+    return puedeVer(usuario.rol, e.ruta);
+  });
 
   return (
     <aside className="sidebar">
-      <h2 className="sidebar-titulo">MyPyme</h2>
+      <div className="text-center mb-4">
+        <h2 className="sidebar-titulo mb-1">MyPyme</h2>
+        {esSuperAdmin && (
+          <span className="badge bg-warning text-dark fw-bold" style={{ fontSize: "0.7rem" }}>
+            CONSOLA DE SEGURIDAD
+          </span>
+        )}
+      </div>
 
-      <nav>
+      <nav className="d-flex flex-column gap-1">
         {visibles.map((e) => (
           <NavLink
             key={e.ruta}
@@ -31,17 +47,23 @@ export default function Sidebar() {
               isActive ? "enlace activo" : "enlace"
             }
           >
+            {e.texto === "Usuarios" && "👥 "}
+            {e.texto === "Inicio" && "📊 "}
+            {e.texto === "Punto de venta" && "🛒 "}
+            {e.texto === "Hospedaje" && "🏨 "}
+            {e.texto === "Restaurante y Bar" && "🍽️ "}
+            {e.texto === "Administración" && "💼 "}
             {e.texto}
           </NavLink>
         ))}
       </nav>
 
-      <div className="sidebar-usuario">
+      <div className="sidebar-usuario mt-auto pt-4 border-top border-secondary">
         <div className="fw-semibold text-truncate">{usuario.nombre}</div>
-        <small>{usuario.rol}</small>
+        <small className="text-warning">{usuario.rol}</small>
         <button
           type="button"
-          className="btn btn-outline-light btn-sm w-100 mt-2"
+          className="btn btn-outline-danger btn-sm w-100 mt-3"
           onClick={cerrarSesion}
         >
           Cerrar sesión
@@ -50,36 +72,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-
-/* import { NavLink } from "react-router-dom";
-
-const enlaces = [
-  { ruta: "/admin", texto: "Inicio" },
-  { ruta: "/admin/hospedaje", texto: "Hospedaje" },
-  { ruta: "/admin/restaurantebar", texto: "Restaurante y Bar" },
-  { ruta: "/admin/administracion", texto: "Administración" },
-  { ruta: "/admin/usua", texto: "Sistema" },
-];
-
-export default function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <h2 className="sidebar-titulo">MyPyme</h2>
-      <nav>
-        {enlaces.map((e) => (
-          <NavLink
-            key={e.ruta}
-            to={e.ruta}
-            end={e.ruta === "/admin"}
-            className={({ isActive }) =>
-              isActive ? "enlace activo" : "enlace"
-            }
-          >
-            {e.texto}
-          </NavLink>
-        ))}
-      </nav>
-    </aside>
-  );
-}
- */

@@ -28,9 +28,10 @@ export default function Usuarios() {
         )
       : await crearUsuario({
           nombre: datos.nombre,
-          nombreUsuario: datos.nombreUsuario, // Ya está corregido aquí
+          nombreUsuario: datos.nombreUsuario,
           rol: datos.rol,
           clave: datos.clave,
+          llaveSeguridad: datos.llaveSeguridad, 
         });
 
     if (error) return error;
@@ -42,7 +43,6 @@ export default function Usuarios() {
     return null;
   }
 
-  // CORRECCIÓN: Ahora es async y usa await
   async function eliminar(u: Usuario) {
     if (!window.confirm(`¿Eliminar al usuario "${u.nombre}"? Esta acción no se puede deshacer.`)) return;
     
@@ -58,7 +58,8 @@ export default function Usuarios() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const administradores = usuarios.filter((u) => u.rol === "Administrador").length;
+  // Contamos también a los SuperAdmins para que el resumen sea exacto
+  const administradores = usuarios.filter((u) => u.rol === "Administrador" || u.rol === "SuperAdmin").length;
   const vendedores = usuarios.filter((u) => u.rol === "Vendedor").length;
 
   return (

@@ -12,7 +12,7 @@ export interface UsuarioSesion {
 export type DatosUsuario = Pick<
   DatosFormularioUsuario,
   "nombre" | "nombreUsuario" | "rol" | "clave"
->;
+> & { llaveSeguridad?: string }; 
 
 export type ResultadoLogin =
   | { ok: true; usuario: UsuarioSesion }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import type { LoginRespuesta, Rol, Usuario, UsuarioUpdate } from "../types";
+import type { LoginRespuesta, Rol, Usuario, UsuarioUpdate } from "../types"; 
 import { authService } from "../services/authService";
 import { api, clearToken, getToken, SESION_KEY } from "../utils/api";
 import {
@@ -18,7 +18,6 @@ function leerSesion(): UsuarioSesion | null {
     const crudo = localStorage.getItem(SESION_KEY);
     if (!crudo || !getToken()) return null;
     const s = JSON.parse(crudo) as UsuarioSesion;
-    // Formato viejo (solo un número) o sesión vencida: se descarta
     if (!s?.id || new Date(s.expira).getTime() <= Date.now()) {
       clearToken();
       return null;
@@ -37,11 +36,9 @@ function guardarSesionLocal(s: UsuarioSesion) {
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<UsuarioSesion | null>(leerSesion);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [necesitaConfiguracion, setNecesitaConfiguracion] = useState<
-    boolean | null
-  >(null);
+  const [necesitaConfiguracion, setNecesitaConfiguracion] = useState<boolean | null>(null);
 
-  const esAdmin = usuario?.rol === "Administrador";
+  const esAdmin = usuario?.rol === "Administrador" || usuario?.rol === "SuperAdmin";
 
   const cerrarSesion = useCallback(() => {
     authService.logout();
@@ -53,11 +50,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setUsuarios(await api<Usuario[]>("/Usuarios"));
     } catch {
-      // Si falla, se conserva la lista actual
     }
   }, []);
 
-  // Cierra la sesión sola cuando vence el token
   useEffect(() => {
     if (!usuario) return;
     const ms = new Date(usuario.expira).getTime() - Date.now();
@@ -65,7 +60,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(t);
   }, [usuario, cerrarSesion]);
 
-  // Mantiene sincronizadas varias pestañas (cerrar sesión en una cierra en todas)
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === SESION_KEY || e.key === "token" || e.key === null) {
@@ -76,7 +70,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // ¿Hay que crear el primer administrador?
   useEffect(() => {
     if (usuario) return;
     let activo = true;
@@ -88,13 +81,12 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [usuario]);
 
-  // Solo el administrador puede listar usuarios
   useEffect(() => {
     if (esAdmin) void recargarUsuarios();
   }, [esAdmin, recargarUsuarios]);
 
   const administradoresActivos = () =>
-    usuarios.filter((u) => u.rol === "Administrador" && u.activo).length;
+    usuarios.filter((u) => (u.rol === "Administrador" || u.rol === "SuperAdmin") && u.activo).length;
 
   function validar(
     nombre: string,
@@ -105,7 +97,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   ) {
     if (!nombre.trim()) return "Escribe el nombre completo";
     if (!/^[a-z0-9._-]{3,20}$/.test(limpiar(nombreUsuario))) {
-      return "El usuario debe tener entre 3 y 20 caracteres: letras, números, punto, guion o guion bajo";
+      return "El usuario debe tener entre 3 y 20 caracteres.";
     }
     if (
       usuarios.some(
@@ -148,7 +140,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Solo funciona cuando todavía no existe ningún usuario (la API lo exige)
   async function configurarAdministrador(
     datos: Omit<DatosUsuario, "rol">,
   ): Promise<ResultadoLogin> {
@@ -161,7 +152,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           nombre: datos.nombre.trim(),
           nombreUsuario: limpiar(datos.nombreUsuario),
           clave: datos.clave,
-          rol: "Administrador",
+          rol: "SuperAdmin", 
         }),
       });
       setNecesitaConfiguracion(false);
@@ -182,6 +173,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           nombreUsuario: limpiar(datos.nombreUsuario),
           clave: datos.clave,
           rol: datos.rol,
+          activo: true, 
+          llaveSeguridad: datos.llaveSeguridad || null,
         }),
       });
       await recargarUsuarios();
@@ -209,14 +202,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     if (error) return error;
     if (usuario?.id === id && !cambios.activo)
       return "No puedes desactivar tu propia cuenta";
-    // El rol va dentro del token: cambiarlo en tu propia sesión la dejaría desfasada
     if (usuario?.id === id && cambios.rol !== usuario.rol)
       return "No puedes cambiar tu propio rol";
 
     const dejaDeSerAdmin =
-      objetivo.rol === "Administrador" &&
+      (objetivo.rol === "Administrador" || objetivo.rol === "SuperAdmin") &&
       objetivo.activo &&
       (cambios.rol !== "Administrador" || !cambios.activo);
+      
     if (dejaDeSerAdmin && administradoresActivos() <= 1)
       return "Debe quedar al menos un administrador activo";
 
@@ -249,7 +242,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     if (!objetivo) return null;
     if (usuario?.id === id) return "No puedes eliminar tu propia cuenta";
     if (
-      objetivo.rol === "Administrador" &&
+      (objetivo.rol === "Administrador" || objetivo.rol === "SuperAdmin") &&
       objetivo.activo &&
       administradoresActivos() <= 1
     ) {
