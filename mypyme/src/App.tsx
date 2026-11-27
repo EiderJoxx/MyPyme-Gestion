@@ -14,6 +14,8 @@ import Cabanas from "./pages/public/Cabanas";
 import Planes from "./pages/public/Planes";
 import Eventos from "./pages/public/Eventos.tsx";
 import Contacto from "./pages/public/Contacto.tsx";
+import Terminos from "./pages/public/Terminos";
+import Privacidad from "./pages/public/Privacidad";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -30,6 +32,8 @@ export default function App() {
             <Route path="/planes-y-experiencias" element={<Planes />} />
             <Route path="/eventos-y-celebraciones" element={<Eventos />} />
             <Route path="/contacto" element={<Contacto />} />
+            <Route path="/terminos" element={<Terminos />} />
+            <Route path="/privacidad" element={<Privacidad />} />
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>

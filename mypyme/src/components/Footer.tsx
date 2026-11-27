@@ -1,6 +1,23 @@
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "../css/Footer.css";
 
 export default function Footer() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const irASeccion = (id: string) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 200);
+    } else {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <footer className="footer-main">
       <div className="container">
@@ -9,24 +26,40 @@ export default function Footer() {
             <h5 className="footer-title">Navegación</h5>
             <ul className="list-unstyled">
               <li>
-                <a href="#inicio" className="footer-link">
+                <button
+                  type="button"
+                  onClick={() => irASeccion("inicio")}
+                  className="footer-link btn btn-link p-0 text-start"
+                >
                   Inicio
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#sobre-nosotros" className="footer-link">
+                <button
+                  type="button"
+                  onClick={() => irASeccion("sobre-nosotros")}
+                  className="footer-link btn btn-link p-0 text-start"
+                >
                   Sobre Nosotros
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#hospedaje" className="footer-link">
+                <button
+                  type="button"
+                  onClick={() => irASeccion("servicios")}
+                  className="footer-link btn btn-link p-0 text-start"
+                >
                   Nuestros Servicios
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#contacto" className="footer-link">
+                <button
+                  type="button"
+                  onClick={() => irASeccion("contacto")}
+                  className="footer-link btn btn-link p-0 text-start"
+                >
                   Contáctanos
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -35,14 +68,14 @@ export default function Footer() {
             <h5 className="footer-title">Información Legal</h5>
             <ul className="list-unstyled">
               <li>
-                <a href="#" className="footer-link">
+                <Link to="/terminos" className="footer-link">
                   Política de Términos y Condiciones
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="footer-link">
+                <Link to="/privacidad" className="footer-link">
                   Política de Tratamiento de Datos Personales
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -50,7 +83,7 @@ export default function Footer() {
           <div className="col-md-3">
             <h5 className="footer-title">Información de Contacto</h5>
             <p className="mb-1 footer-text">Canal de WhatsApp</p>
-            <p className="fw-bold mb-3">+57 315 0000000</p>
+            <p className="fw-bold mb-3">+57 316 3628861</p>
             <p className="mb-1 footer-text">Correo Electrónico</p>
             <p className="fw-bold mb-3">reserva@aescondida.com</p>
           </div>
@@ -67,8 +100,7 @@ export default function Footer() {
 
         <div className="text-center footer-text">
           <small>
-            COPYRIGHT © {new Date().getFullYear()} Aescondidas. All Rights
-            Reserved.
+            COPYRIGHT © {new Date().getFullYear()} Aescondidas. All Rights Reserved.
           </small>
         </div>
       </div>
