@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Habitacion, Reserva } from "../../types";
+import type { Habitacion, Reserva, ReservaCreate } from "../../types";
 import { dinero } from "../../utils/formato";
 import { hoyISO, nochesEntre, sumarDias } from "../../utils/fechas";
 import { estaLibre } from "../../utils/reservas";
@@ -8,7 +8,7 @@ interface Props {
   editando: Reserva | null;
   habitaciones: Habitacion[];
   reservas: Reserva[];
-  onGuardar: (datos: Omit<Reserva, "id">, id?: number) => void;
+  onGuardar: (datos: Omit<ReservaCreate, "id">, id?: number) => void;
   onCancelar: () => void;
 }
 

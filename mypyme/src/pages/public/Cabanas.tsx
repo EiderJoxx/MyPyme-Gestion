@@ -1,11 +1,25 @@
-import { habitaciones } from "../../data/datosPrueba";
+import { cabanas } from "../../data/cabanas";
 import { formatoCOP, enlaceWhatsApp } from "../../utils/whatsapp";
 import "../../css/Cabanas.css";
 
+const incluye = [
+  { icon: "🏠", text: "Cabañas cómodas y privadas" },
+  { icon: "🏝️", text: "Acceso directo a la playa" },
+  { icon: "🏊", text: "Uso de piscina" },
+  { icon: "🪑", text: "Áreas sociales" },
+  { icon: "🍳", text: "Desayuno incluido (Según el plan)" },
+  { icon: "🍹", text: "Cóctel de bienvenida" },
+  { icon: "🎈", text: "Decoración para ocasiones románticas" },
+];
+
+const fotosEspacios = [
+  { src: "/galeria/foto7.jpg", alt: "Espacio 1" },
+  { src: "/galeria/foto2.jpg", alt: "Espacio 2" },
+  { src: "/galeria/foto8.jpg", alt: "Espacio 3" },
+];
+
 export default function Cabanas() {
-  const habitacionesDisponibles = habitaciones.filter(
-    (h) => h.estado === "Disponible",
-  );
+  const disponibles = cabanas.filter((h) => h.estado === "Disponible");
 
   const handleReservar = (habitacion: string, precio: number) => {
     const mensaje = `Hola, estoy interesado en reservar la ${habitacion} (${formatoCOP(precio)} por noche). ¿Tienen disponibilidad?`;
@@ -14,7 +28,6 @@ export default function Cabanas() {
 
   return (
     <>
-      {/* HERO SECTION */}
       <section className="cabanas-hero">
         <div className="container position-relative z-1 text-center text-md-start">
           <h1 className="display-4 fw-bold mb-3">
@@ -27,7 +40,6 @@ export default function Cabanas() {
             de la rutina.
           </p>
         </div>
-        {/* Onda SVG */}
         <div className="cabanas-wave-container">
           <svg
             viewBox="0 0 1200 120"
@@ -42,17 +54,15 @@ export default function Cabanas() {
         </div>
       </section>
 
-      {/* LISTADO DE CABAÑAS */}
       <section className="container py-5">
-        {habitacionesDisponibles.map((h, index) => (
+        {disponibles.map((h, index) => (
           <div
             key={h.id}
             className={`row align-items-center mb-5 pb-4 ${index % 2 !== 0 ? "flex-md-row-reverse" : ""}`}
           >
-            {/* Imagen con flechas (simuladas) */}
             <div className="col-md-6 mb-4 mb-md-0 position-relative">
               <img
-                src={h.imagen}
+                src={h.imagen ?? undefined}
                 alt={h.tipo}
                 className="img-fluid rounded-4 shadow cabanas-img"
               />
@@ -62,7 +72,6 @@ export default function Cabanas() {
               </div>
             </div>
 
-            {/* Información */}
             <div className="col-md-6 px-md-5">
               <div className="d-flex justify-content-between align-items-start mb-3">
                 <div>
@@ -77,7 +86,6 @@ export default function Cabanas() {
                     <strong>Capacidad:</strong> {h.capacidad} personas
                   </p>
                 </div>
-                {/* Etiqueta de precio */}
                 <div className="price-badge text-center">
                   <span className="d-block fw-bold fs-5">
                     {formatoCOP(h.precioNoche)} COP
@@ -118,15 +126,7 @@ export default function Cabanas() {
         <div className="container text-center">
           <h2 className="fw-bold mb-5">¿Qué incluye el hospedaje?</h2>
           <div className="row g-4 justify-content-center">
-            {[
-              { icon: "🏠", text: "Cabañas cómodas y privadas" },
-              { icon: "🏝️", text: "Acceso directo a la playa" },
-              { icon: "🏊", text: "Uso de piscina" },
-              { icon: "🪑", text: "Áreas sociales" },
-              { icon: "🍳", text: "Desayuno incluido (Según el plan)" },
-              { icon: "🍹", text: "Cóctel de bienvenida" },
-              { icon: "🎈", text: "Decoración para ocasiones románticas" },
-            ].map((item, i) => (
+            {incluye.map((item, i) => (
               <div key={i} className="col-6 col-md-4 col-lg-3">
                 <div className="fs-1 mb-2">{item.icon}</div>
                 <p className="fw-semibold small">{item.text}</p>
@@ -142,27 +142,15 @@ export default function Cabanas() {
             Disfruta de nuestros espacios
           </h2>
           <div className="row g-2">
-            <div className="col-md-4">
-              <img
-                src="/galeria/foto7.jpg"
-                alt="Espacio 1"
-                className="img-fluid w-100 h-100 object-fit-cover rounded"
-              />
-            </div>
-            <div className="col-md-4">
-              <img
-                src="/galeria/foto2.jpg"
-                alt="Espacio 2"
-                className="img-fluid w-100 h-100 object-fit-cover rounded"
-              />
-            </div>
-            <div className="col-md-4">
-              <img
-                src="/galeria/foto8.jpg"
-                alt="Espacio 3"
-                className="img-fluid w-100 h-100 object-fit-cover rounded"
-              />
-            </div>
+            {fotosEspacios.map((foto) => (
+              <div key={foto.src} className="col-md-4">
+                <img
+                  src={foto.src}
+                  alt={foto.alt}
+                  className="img-fluid w-100 h-100 object-fit-cover rounded"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>

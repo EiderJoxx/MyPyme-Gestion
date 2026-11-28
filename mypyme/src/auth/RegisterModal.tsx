@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../css/RegisterModal.css";
+import "../css/RegisterModal.css";
 
 interface RegistrerModalProps {
   isOpen: boolean;
@@ -45,13 +45,9 @@ const RegistrerModal: React.FC<RegistrerModalProps> = ({ isOpen, onClose }) => {
       return;
     }
     setError("");
-    console.log("Registro con:", formData);
-    // Lógica de registro backend
   };
 
-  const handleOAuthLogin = (provider: string) => {
-    console.log(`Registrando con ${provider}`);
-  };
+  const handleOAuthLogin = () => {};
 
   return (
     <div className="reg-overlay" onClick={onClose}>
@@ -74,7 +70,7 @@ const RegistrerModal: React.FC<RegistrerModalProps> = ({ isOpen, onClose }) => {
         <button
           type="button"
           className="reg-google"
-          onClick={() => handleOAuthLogin("Google")}
+          onClick={handleOAuthLogin}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path

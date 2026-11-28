@@ -103,7 +103,7 @@ export default function TablaInventario({
                         <small className="text-secondary">{i.categoria}</small>
                         {i.itemMenuId !== undefined && (
                           <div className="small text-secondary">
-                            ↔ {nombreMenu(i.itemMenuId)} (−{i.consumoPorVenta}{" "}
+                            ↔ {nombreMenu(i.itemMenuId ?? undefined)} (−{i.consumoPorVenta}{" "}
                             por venta)
                           </div>
                         )}

@@ -1,4 +1,3 @@
-
 export type Rol = "SuperAdmin" | "Administrador" | "Vendedor";
 export type EstadoHabitacion = "Disponible" | "Ocupada" | "Limpieza" | "Mantenimiento";
 export type EstadoReserva = "Pendiente" | "Confirmada" | "CheckIn" | "CheckOut" | "Cancelada";
@@ -11,14 +10,16 @@ export interface LoginRequest {
   nombreUsuario: string;
   clave: string;
 }
+
 export interface DatosFormularioUsuario {
   nombre: string;
-  nombreUsuario: string; 
+  nombreUsuario: string;
   rol: Rol;
   activo: boolean;
   clave: string;
-  llaveSeguridad? : string;
+  llaveSeguridad?: string;
 }
+
 export interface LoginRespuesta {
   token: string;
   expira: string;
@@ -58,15 +59,6 @@ export interface UsuarioUpdate {
   rol: Rol;
   activo: boolean;
   nuevaClave?: string | null;
-}
-
-
-export interface DatosFormularioUsuario {
-  nombre: string;
-  nombreUsuario: string;
-  rol: Rol;
-  activo: boolean;
-  clave: string;
 }
 
 export interface Habitacion {
@@ -111,7 +103,6 @@ export interface ItemMenu {
   disponible: boolean;
 }
 
-
 export type Bebida = Pick<ItemMenu, "id" | "nombre" | "precio" | "descripcion" | "foto">;
 
 export interface DetalleOrden {
@@ -122,7 +113,7 @@ export interface DetalleOrden {
   cantidad: number;
   precioUnitario: number;
   area: AreaMenu;
-  subtotal: number; 
+  subtotal: number;
 }
 
 export interface Orden {
@@ -134,13 +125,13 @@ export interface Orden {
   estado: EstadoOrden;
   metodoPago?: MetodoPago;
   vendedorId?: number;
-  vendedor?: string; // <-- AGREGA ESTA LÍNEA AQUÍ
+  vendedor?: string;
 }
 
 export interface DetalleOrdenCreate {
   itemMenuId: number;
   cantidad: number;
-  precioUnitario: number; 
+  precioUnitario: number;
   area: AreaMenu;
 }
 
@@ -173,8 +164,6 @@ export interface ItemOrden {
   cantidad: number;
 }
 
-
-
 export interface Reserva {
   id: number;
   cliente: string;
@@ -189,9 +178,9 @@ export interface Reserva {
   precioNoche: number;
   anticipo: number;
   notas?: string | null;
-  noches: number; 
-  total: number;  
-  saldo: number;  
+  noches: number;
+  total: number;
+  saldo: number;
 }
 
 export type ReservaCreate = Omit<
@@ -199,16 +188,15 @@ export type ReservaCreate = Omit<
   "id" | "habitacionNumero" | "noches" | "total" | "saldo"
 >;
 
-// Reserva creada desde la web pública
 export interface ReservaPublicaCreate {
   cliente: string;
   documento: string;
   telefono: string;
   habitacionId: number;
   personas: number;
-  checkIn: string; 
+  checkIn: string;
   checkOut: string;
-  sitio?: string; 
+  sitio?: string;
 }
 
 export interface ReservaPublicaRespuesta {
@@ -219,7 +207,6 @@ export interface ReservaPublicaRespuesta {
   noches: number;
   total: number;
 }
-
 
 export interface Insumo {
   id: number;
@@ -232,7 +219,7 @@ export interface Insumo {
   itemMenuId?: number | null;
   itemMenuNombre?: string | null;
   consumoPorVenta: number;
-  stockBajo: boolean; 
+  stockBajo: boolean;
 }
 
 export type InsumoCreate = Omit<Insumo, "id" | "itemMenuNombre" | "stockBajo">;
@@ -253,7 +240,6 @@ export interface MovimientoInventarioCreate {
   cantidad: number;
   detalle?: string | null;
 }
-
 
 export interface DatosMovimiento {
   cantidad: number;

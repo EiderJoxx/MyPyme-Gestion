@@ -1,12 +1,12 @@
 import { useState } from "react";
-import type { Insumo, ItemMenu } from "../../types";
+import type { Insumo, InsumoCreate, ItemMenu } from "../../types";
 import { CATEGORIAS_INSUMO, UNIDADES } from "../../data/constantes";
 
 interface Props {
   editando: Insumo | null;
   menu: ItemMenu[];
   nombresExistentes: string[];
-  onGuardar: (datos: Omit<Insumo, "id">, id?: number) => void;
+  onGuardar: (datos: Omit<InsumoCreate, "id">, id?: number) => void;
   onCancelar: () => void;
 }
 

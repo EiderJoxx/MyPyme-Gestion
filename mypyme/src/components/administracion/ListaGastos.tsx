@@ -25,8 +25,8 @@ export default function ListaGastos({ gastos, onEditar, onEliminar }: Props) {
     .filter((g) => categoria === "Todas" || g.categoria === categoria)
     .filter(
       (g) =>
-        g.descripcion.toLowerCase().includes(texto) ||
-        g.proveedor.toLowerCase().includes(texto),
+        (g.descripcion ?? "").toLowerCase().includes(texto) ||
+        (g.proveedor ?? "").toLowerCase().includes(texto),
     )
     .sort((a, b) => b.fecha.localeCompare(a.fecha));
 

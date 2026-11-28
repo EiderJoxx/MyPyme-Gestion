@@ -34,7 +34,7 @@ export default function HistorialMovimientos({ movimientos }: Props) {
                   <span className={`badge ${COLOR[m.tipo]} me-2`}>
                     {m.tipo}
                   </span>
-                  <strong>{m.nombreInsumo}</strong>
+                  <strong>{m.insumoNombre || "Insumo no encontrado"}</strong>
                   <div className="small text-secondary">
                     {new Date(m.fecha).toLocaleString("es-CO", {
                       dateStyle: "short",

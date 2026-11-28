@@ -3,6 +3,7 @@ import type {
   DatosMovimiento,
   Gasto,
   Insumo,
+  InsumoCreate,
   TipoMovimiento,
 } from "../../types";
 import { useInventario } from "../../hooks/useInventario";
@@ -46,7 +47,7 @@ export default function Administracion() {
   const subirPagina = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   // ---------- Inventario ----------
-  async function guardarInsumo(datos: Omit<Insumo, "id">, id?: number) {
+  async function guardarInsumo(datos: Omit<InsumoCreate, "id">, id?: number) {
     const error = await inv.guardarInsumo(datos, id);
     if (error) return avisar("danger", error);
 
